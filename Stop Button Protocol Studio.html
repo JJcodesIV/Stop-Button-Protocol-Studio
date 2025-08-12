@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Stop Button Protocol Studio</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --bg: #0b1020;
+      --card: #141a2a;
+      --muted: #93a1b5;
+      --fg: #e8f0ff;
+      --accent: #7bd389;
+      --accent2: #6a8dff;
+      --warning: #ffbd5a;
+      --danger: #ff6b6b;
+      --surface: #1e2540;
+      --grid: rgba(255,255,255,.05);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
+    .container{max-width:1100px;margin:0 auto;padding:20px 16px}
+    h1{font-size:1.25rem;margin:0 0 6px}
+    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 0 16px;border-bottom:1px solid #223
+      ;}
+    header .badge{font-size:.8rem;background:#223; padding:4px 8px;border-radius:6px;color:#cfe0ff}
+    .grid{display:grid;gap:14px}
+    @media (min-width:900px){
+      .grid{grid-template-columns:1fr 1fr}
+    }
+    .card{background:var(--card);border:1px solid #2a2f63;border-radius:12px;padding:14px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
+    .card h2{font-size:1rem;margin:0 0 8px}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+    label{font-size:.85rem; color:#dbe7ff}
+    input[type="text"], input[type="number"], textarea, select{
+      width:100%; padding:8px 10px; border-radius:8px; border:1px solid #3a3f7a; background:#0e1333; color:#e8f0ff;
+      outline: none;
+    }
+    textarea{min-height:72px; resize:vertical}
+    .btn{cursor:pointer; padding:10px 14px; border-radius:8px; border:1px solid #3a3f7a; background:#1b2142; color:#e8f0ff; transition:.2s; }
+    .btn:hover{ transform: translateY(-1px); background:#262b63}
+    .btn.primary{ background: linear-gradient(135deg, #2a7dff, #6a8dff); border: none; }
+    .btn.danger{ background:#3a2238; border:1px solid #6b254a; }
+    .btn.ghost{ background:transparent; border:1px dashed #3a3f7a; }
+    .section{padding:6px 0 0}
+    .section + .section{border-top:1px solid #2a2f63;padding-top:14px;margin-top:14px}
+    .inline{display:flex;gap:8px;align-items:center}
+    .hint{font-size:.8rem;color:var(--muted)}
+    .summary{white-space:pre-wrap;background:#0b1138;border:1px solid #2e2f66;border-radius:8px;padding:12px}
+    .muted{color:var(--muted)}
+    .kbd{font-family: ui-monospace,SFMono-Regular,Monaco,monospace; font-size:.85em; padding:2px 6px; border-radius:6px;background:#222e63}
+    details{border:1px solid #2a2f63;border-radius:8px;padding:6px 8px}
+    summary{cursor:pointer;font-weight:600}
+    .section-title{margin:6px 0 8px;font-weight:700}
+    .list{margin:6px 0 0 18px}
+    hr{border:none;border-top:1px solid #2a2f63;margin:12px 0}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Stop Button Protocol Studio</h1>
+        <div class="hint">Pause • Re-access • Refresh • Re-align goals and wellbeing</div>
+      </div>
+      <div class="inline">
+        <span class="badge" title="Local-only data">Local</span>
+        <button class="btn" id="newSessionBtn" title="Start fresh protocol session">New Session</button>
+        <button class="btn" id="saveBtn" title="Save current session">Save</button>
+        <button class="btn" id="loadBtn" title="Load last saved session">Load</button>
+      </div>
+    </header>
+
+    <div class="grid">
+      <!-- 1) Quick Self-Check -->
+      <section class="card section" aria-labelledby="selfcheck-title">
+        <h2 id="selfcheck-title">1) Quick Self-Check (pause essentials)</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 150px; min-width:180px">
+            <label>Energy today (1-10)</label>
+            <input type="number" id="q_energy" min="1" max="10" value="6" />
+          </div>
+          <div style="flex:1 1 150px; min-width:180px">
+            <label>Mood today (1-10)</label>
+            <input type="number" id="q_mood" min="1" max="10" value="6" />
+          </div>
+          <div style="flex:1 1 150px; min-width:180px">
+            <label>Stress level (1-10)</label>
+            <input type="number" id="q_stress" min="1" max="10" value="5" />
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>Biggest current friction</label>
+            <input type="text" id="q_friction" placeholder="e.g., overwhelm from backlog" value="Backlog and decision fatigue" />
+          </div>
+          <div style="flex:1 1 180px; min-width:180px">
+            <label>Sleep quality last night (1-10)</label>
+            <input type="number" id="q_sleep" min="1" max="10" value="7" />
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>One boundary you’re protecting or need</label>
+            <input type="text" id="q_boundary" placeholder="e.g., no work after 9pm" value="No work emails after 9pm" />
+          </div>
+        </div>
+        <div class="hint" style="margin-top:6px">Tip: treat this as a neutral snapshot—no self-critique.</div>
+      </section>
+
+      <!-- 2) Values & Domains -->
+      <section class="card section" aria-labelledby="values-title">
+        <h2 id="values-title">2) Values & Domains</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 300px; min-width:240px">
+            <label>Core values (3)</label>
+            <input type="text" id="v1" placeholder="Value 1" value="Autonomy" />
+            <input type="text" id="v2" placeholder="Value 2" value="Wellbeing" style="margin-top:6px" />
+            <input type="text" id="v3" placeholder="Value 3" value="Growth" style="margin-top:6px" />
+          </div>
+          <div style="flex:1 1 300px; min-width:280px">
+            <label>Domains to consider (3–4)</label>
+            <input type="text" id="d1" placeholder="Domain 1 (e.g., Career)" value="Wellbeing" />
+            <input type="text" id="d2" placeholder="Domain 2" value="Career/learning" style="margin-top:6px" />
+            <input type="text" id="d3" placeholder="Domain 3" value="Relationships" style="margin-top:6px" />
+            <input type="text" id="d4" placeholder="Domain 4 (optional)" value="" style="margin-top:6px" />
+          </div>
+          <div style="flex:1 1 100%; min-width:260px">
+            <label>Outcomes in 3–6 months for each domain (short sentences)</label>
+            <textarea id="domainOutcomes" placeholder="Describe outcomes per domain, one per line." rows="5">Wellbeing: better sleep, energy, lower stress.
+Career: clear learning path, defined next role.
+Relationships: stronger connection with close ones.</textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3) Goals Framework -->
+      <section class="card section" aria-labelledby="framework-title">
+        <h2 id="framework-title">3) Goals Framework</h2>
+        <div class="row" style="align-items:flex-end;flex-wrap:wrap">
+          <div style="flex:1 1 240px; min-width:240px">
+            <label>Framework</label>
+            <select id="frameworkSelect" aria-label="Choose goal framework">
+              <option value="OKR">OKRs (Objectives & Key Results)</option>
+              <option value="SMART">SMART Goals</option>
+            </select>
+            <div class="hint" style="margin-top:6px">Choose what you will actually use. You can switch later and export/import.</div>
+          </div>
+
+          <div id="okrPanel" class="section" style="flex:1 1 320px; min-width:260px; padding:8px 0 0; display:block;">
+            <label style="margin-bottom:6px; display:block">OKR: Objective</label>
+            <input type="text" id="okrObjective" placeholder="One clear objective for the period" value="Stabilize daily routine and energy" />
+            <div class="row" style="margin-top:8px">
+              <div style="flex:1 1 180px">
+                <label>Key Result 1</label>
+                <input type="text" id="okrKR1" placeholder="Ex: Complete morning routine" value="Establish morning routine by day 3" />
+                <input type="number" id="okrKR1Progress" min="0" max="100" value="20" style="margin-top:6px" />
+              </div>
+              <div style="flex:1 1 180px">
+                <label>Key Result 2</label>
+                <input type="text" id="okrKR2" placeholder="Ex: 7 hours sleep consistently" value="Sleep 7 hours most nights" />
+                <input type="number" id="okrKR2Progress" min="0" max="100" value="30" style="margin-top:6px" />
+              </div>
+              <div style="flex:1 1 180px">
+                <label>Key Result 3</label>
+                <input type="text" id="okrKR3" placeholder="Ex: 20 mins movement daily" value="Move 20 mins daily" />
+                <input type="number" id="okrKR3Progress" min="0" max="100" value="10" style="margin-top:6px" />
+              </div>
+            </div>
+          </div>
+
+          <div id="smartPanel" class="section" style="flex:1 1 320px; min-width:260px; padding:8px 0 0; display:none;">
+            <label style="margin-bottom:6px; display:block">SMART Goals</label>
+            <div id="smartGoalsContainer">
+              <!-- Smart goal blocks are cloneable via JS -->
+              <div class="smart-block" style="border:1px solid #2a2f63; padding:8px; border-radius:8px; margin-bottom:8px;">
+                <input placeholder="Goal title" style="width:100%; margin-bottom:6px" />
+                <div class="row" style="gap:6px; flex-wrap:wrap">
+                  <input placeholder="Specific" style="flex:1 1 180px" />
+                  <input placeholder="Measurable" style="flex:1 1 180px" />
+                  <input placeholder="Achievable" style="flex:1 1 180px" />
+                  <input placeholder="Relevant" style="flex:1 1 180px" />
+                  <input placeholder="Time-bound" style="flex:1 1 180px" />
+                </div>
+              </div>
+            </div>
+            <button class="btn" id="addSmartGoalBtn" title="Add SMART goal">Add SMART Goal</button>
+          </div>
+
+        </div>
+        <div class="hint" style="margin-top:6px">Tip: OKR focuses on an Objective with measurable Key Results. SMART is a single, well-defined goal per block.</div>
+      </section>
+
+      <!-- 4) Plan & Priorities -->
+      <section class="card section" aria-labelledby="planning-title">
+        <h2 id="planning-title">4) Planning & Priorities</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 320px; min-width:260px">
+            <label>Big Rock (1 big weekly priority)</label>
+            <input type="text" id="planBigRock" placeholder="e.g., Ship progress on new feature" value="Establish daily routine and energy baseline" />
+          </div>
+          <div style="flex:1 1 240px; min-width:240px">
+            <label>Supporting Actions (2)</label>
+            <input type="text" id="planSupport1" placeholder="Support action 1" value="Sleep window 7–8 hours" />
+            <input type="text" id="planSupport2" placeholder="Support action 2" value="5-min morning movement" style="margin-top:6px" />
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>Time-boxing (minutes)</label>
+            <div class="row" style="gap:6px; align-items:center;">
+              <input type="number" id="planBigRockTime" min="15" max="240" value="90" />
+              <span class="hint">for Big Rock</span>
+            </div>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:6px">Minimal viable plan: 1 big rock + 2 actions with clear time budgets.</div>
+      </section>
+
+      <!-- 5) Organization System -->
+      <section class="card section" aria-labelledby="system-title">
+        <h2 id="system-title">5) Organize Your System</h2>
+        <div class="row" style="flex-wrap:wrap; align-items:flex-end">
+          <div style="flex:1 1 320px; min-width:260px">
+            <label>Preferred method</label>
+            <select id="systemPref">
+              <option value="digital">Digital (Notion / Todoist / Calendar)</option>
+              <option value="analog">Analog (Notebook + simple templates)</option>
+              <option value="hybrid">Hybrid (Digital + Quick-Offline)</option>
+            </select>
+          </div>
+          <div style="flex:1 1 320px; min-width:260px">
+            <label>Template guidance</label>
+            <textarea id="systemTemplates" placeholder="Describe structure you’ll create (e.g., Sections: Goals, Tasks, Wellbeing)" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:6px">Core capture: Goals, Tasks, Wellbeing, Reflections. One-page philosophy helps maintain focus.</div>
+      </section>
+
+      <!-- 6) Wellbeing Plan -->
+      <section class="card section" aria-labelledby="wellbeing-title">
+        <h2 id="wellbeing-title">6) Wellbeing Forward Plan</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 220px; min-width:220px">
+            <label>Daily micro-breaks</label>
+            <select id="wbBreaks">
+              <option value="2">2 minutes x 3-4 times/day</option>
+              <option value="5">5 minutes x 2 times/day</option>
+            </select>
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>Movement motivation</label>
+            <select id="wbMove">
+              <option value="short">4–10 minutes light movement</option>
+              <option value="moderate">15–30 minutes daily</option>
+            </select>
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>Sleep wind-down routine</label>
+            <input type="text" id="wbSleep" placeholder="e.g., 30 minutes of dim light, no screens" value="Dim lights, no screens 30m before bed" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:6px; gap:6px; align-items:center">
+          <label>Boundaries to enforce this week</label>
+          <input type="text" id="wbBoundary" placeholder="One boundary (e.g., after 9pm)" value="No work after 9pm" style="flex:1 1 300px" />
+        </div>
+      </section>
+
+      <!-- 7) Cadence & Rituals -->
+      <section class="card section" aria-labelledby="cadence-title">
+        <h2 id="cadence-title">7) Cadence & Rituals</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 320px; min-width:260px">
+            <label>Daily reflection prompts</label>
+            <textarea id="cadenceDaily" rows="4" placeholder="What went well? What needs attention? Next small step?" >
+What went well today? What needs attention? Next small step?
+            </textarea>
+          </div>
+          <div style="flex:1 1 320px; min-width:260px">
+            <label>Weekly review prompts</label>
+            <textarea id="cadenceWeekly" rows="4" placeholder="Rethink goals, adjust priorities, review wellbeing" >
+Rethink goals, adjust priorities, plan next week, review wellbeing metrics
+            </textarea>
+          </div>
+        </div>
+        <div class="hint" style="margin-top:6px">Cadence should be consistent and lightweight.</div>
+      </section>
+
+      <!-- 8) Signals & Quick Check -->
+      <section class="card section" aria-labelledby="signals-title">
+        <h2 id="signals-title">8) Signals You’re on Track</h2>
+        <ul class="list" id="signalsList">
+          <li><input type="checkbox" id="sig1" /> You feel clearer about direction</li>
+          <li><input type="checkbox" id="sig2" /> You take action on small steps</li>
+          <li><input type="checkbox" id="sig3" /> Preventive wellbeing habits are happening</li>
+        </ul>
+      </section>
+
+      <!-- 9) Minimal Viable System -->
+      <section class="card section" aria-labelledby="minimal-title">
+        <h2 id="minimal-title">9) Minimal Viable System</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 360px; min-width:320px">
+            <label>One-page capture (summary)</label>
+            <textarea id="mvSummary" placeholder="Today: top task, wellbeing task, quick reflection" rows="4"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- 10) Quick-start 7-Day Plan -->
+      <section class="card section" aria-labelledby="quickstart-title">
+        <h2 id="quickstart-title">10) Quick-start 7-Day Plan</h2>
+        <div class="row" style="flex-wrap:wrap">
+          <div style="flex:1 1 320px; min-width:320px">
+            <ol class="list" id="sevenDayPlan" style="margin-top:6px">
+              <li>Day 0: Prepare stop space & choose framework</li>
+              <li>Day 1: 15-minute pause, draft Objective + 2 Key Results or 1 SMART goal</li>
+              <li>Day 2–4: Daily 5-minute wellbeing checks + 10-minute planning</li>
+              <li>Day 5: 30-minute weekly planning block</li>
+              <li>Day 6: Sleep/wellbeing focus, adjust wind-down</li>
+              <li>Day 7: Weekly reset & plan next week</li>
+            </ol>
+          </div>
+          <div style="flex:1 1 260px; min-width:260px">
+            <label>Templates & quick-start notes</label>
+            <textarea id="startNotes" placeholder="Notes to guide your first week" rows="6"></textarea>
+          </div>
+        </div>
+      </section>
+
+      <!-- 11) Import / Export / Templates -->
+      <section class="card section" aria-labelledby="data-title">
+        <h2 id="data-title">11) Data & Templates</h2>
+        <div class="row" style="flex-wrap:wrap; align-items:flex-end">
+          <div style="flex:1 1 420px; min-width:320px">
+            <label>Export JSON</label>
+            <button class="btn" id="exportBtn" title="Export current session as JSON">Export</button>
+            <textarea id="exportBox" placeholder="Exported JSON will appear here" rows="6" style="width:100%; margin-top:6px"></textarea>
+          </div>
+          <div style="flex:1 1 420px; min-width:320px">
+            <label>Import JSON</label>
+            <input type="file" id="importFile" accept="application/json" />
+            <textarea id="importBox" placeholder="Or paste JSON here" rows="6" style="width:100%; margin-top:6px"></textarea>
+            <button class="btn" id="importBtn" style="margin-top:6px" title="Import JSON to load into the form">Import</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <hr/>
+    <section class="card section" aria-labelledby="preview-title">
+      <h2 id="preview-title" class="section-title">Live Preview / Summary</h2>
+      <div class="summary" id="livePreview" aria-live="polite"></div>
+    </section>
+
+  </div>
+
+  <script>
+    // Quantum-leaning, self-contained tool to execute the Stop Button protocol.
+    // LocalStorage persistence
+    const storageKey = "stopButtonSession";
+
+    // Elements
+    const frameworkSelect = document.getElementById("frameworkSelect");
+    const okrPanel = document.getElementById("okrPanel");
+    const smartPanel = document.getElementById("smartPanel");
+    const addSmartGoalBtn = document.getElementById("addSmartGoalBtn");
+    const smartGoalsContainer = document.getElementById("smartGoalsContainer");
+
+    // Initialize
+    function init() {
+      // Framework toggle
+      frameworkSelect.addEventListener("change", () => {
+        const v = frameworkSelect.value;
+        if (v === "OKR") {
+          okrPanel.style.display = "block";
+          smartPanel.style.display = "none";
+        } else {
+          okrPanel.style.display = "none";
+          smartPanel.style.display = "block";
+        }
+        renderSummary();
+      });
+
+      // Smart: add initial block (already exists as placeholder)
+      addSmartGoalBtn.addEventListener("click", () => {
+        const block = document.createElement("div");
+        block.className = "smart-block";
+        block.style.border = "1px solid #2a2f63";
+        block.style.padding = "8px";
+        block.style.borderRadius = "8px";
+        block.style.marginTop = "6px";
+
+        block.innerHTML = `
+          <input placeholder="Goal title" style="width:100%; margin-bottom:6px" />
+          <div class="row" style="gap:6px; flex-wrap:wrap">
+            <input placeholder="Specific" style="flex:1 1 180px" />
+            <input placeholder="Measurable" style="flex:1 1 180px" />
+            <input placeholder="Achievable" style="flex:1 1 180px" />
+            <input placeholder="Relevant" style="flex:1 1 180px" />
+            <input placeholder="Time-bound" style="flex:1 1 180px" />
+          </div>`;
+        smartGoalsContainer.appendChild(block);
+      });
+
+      // Save / Load
+      document.getElementById("saveBtn").addEventListener("click", saveSession);
+      document.getElementById("loadBtn").addEventListener("click", loadSession);
+      document.getElementById("newSessionBtn").addEventListener("click", newSession);
+
+      // Export / Import
+      document.getElementById("exportBtn").addEventListener("click", exportSession);
+      document.getElementById("importBtn").addEventListener("click", () => {
+        // Import from text area
+        const text = document.getElementById("importBox").value.trim();
+        if (!text) { alert("Please paste or select a file with JSON data."); return; }
+        try {
+          const data = JSON.parse(text);
+          applyDataToForm(data);
+          alert("Imported successfully.");
+        } catch (e) {
+          alert("Invalid JSON data.");
+        }
+      });
+      document.getElementById("importFile").addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const text = await file.text();
+        document.getElementById("importBox").value = text;
+      });
+
+      // Live preview
+      document.addEventListener("input", () => renderSummary());
+
+      // Load initial data if present
+      loadSession(true);
+    }
+
+    // New session: reset forms and create a clean skeleton
+    function newSession() {
+      if (!confirm("Start a new session? This will clear current inputs in this tab (not your exports).")) return;
+      localStorage.removeItem(storageKey);
+      // Clear inputs
+      document.querySelectorAll("input, textarea").forEach(el => {
+        if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+        else if (el.tagName === "SELECT") el.selectedIndex = 0;
+        else if (el.value) el.value = "";
+      });
+      // Re-create some defaults
+      document.getElementById("q_energy").value = "6";
+      document.getElementById("q_mood").value = "6";
+      document.getElementById("q_stress").value = "5";
+      document.getElementById("q_sleep").value = "7";
+      document.getElementById("okrObjective").value = "Stabilize daily routine and energy";
+      document.getElementById("okrKR1").value = "Establish morning routine by day 3";
+      document.getElementById("okrKR1Progress").value = 20;
+      document.getElementById("okrKR2").value = "Sleep 7 hours most nights";
+      document.getElementById("okrKR2Progress").value = 30;
+      document.getElementById("okrKR3").value = "Move 20 mins daily";
+      document.getElementById("okrKR3Progress").value = 10;
+      renderSummary();
+    }
+
+    // Capture current form into a data object
+    function collectData() {
+      const data = {
+        timestamp: new Date().toISOString(),
+        quickCheck: {
+          energy: Number(document.getElementById("q_energy").value || 0),
+          mood: Number(document.getElementById("q_mood").value || 0),
+          stress: Number(document.getElementById("q_stress").value || 0),
+          friction: document.getElementById("q_friction").value,
+          sleep: Number(document.getElementById("q_sleep").value || 0),
+          boundary: document.getElementById("q_boundary").value
+        },
+        values: [
+          document.getElementById("v1").value,
+          document.getElementById("v2").value,
+          document.getElementById("v3").value
+        ],
+        domains: [
+          { name: document.getElementById("d1").value, outcome: domainOutcomesFromText(0) },
+          { name: document.getElementById("d2").value, outcome: domainOutcomesFromText(1) },
+          { name: document.getElementById("d3").value, outcome: domainOutcomesFromText(2) },
+          { name: document.getElementById("d4").value, outcome: document.getElementById("domainOutcomes").value.split("\n")[3] || "" }
+        ].filter(d => d.name && d.name.trim() !== "" ),
+        framework: document.getElementById("frameworkSelect").value,
+        goals: collectGoals(),
+        plan: {
+          bigRock: document.getElementById("planBigRock").value,
+          bigRockTime: Number(document.getElementById("planBigRockTime").value || 60),
+          supporting: [
+            document.getElementById("planSupport1").value,
+            document.getElementById("planSupport2").value
+          ].filter(s => s && s.trim() !== "")
+        }
+        ,
+        system: {
+          preferred: document.getElementById("systemPref").value,
+          templates: document.getElementById("systemTemplates").value
+        },
+        wellbeing: {
+          breaks: Number(document.getElementById("wbBreaks").value || 2),
+          move: document.getElementById("wbMove").value,
+          sleep: document.getElementById("wbSleep").value,
+          boundary: document.getElementById("wbBoundary").value
+        },
+        cadence: {
+          daily: document.getElementById("cadenceDaily").value,
+          weekly: document.getElementById("cadenceWeekly").value
+        },
+        signals: Array.from(document.getElementById("signalsList").querySelectorAll("input[type=checkbox]")).map(cb => cb.checked),
+        mv: document.getElementById("mvSummary").value,
+        sevenDayPlan: document.getElementById("sevenDayPlan").innerText,
+        startNotes: document.getElementById("startNotes").value
+      };
+
+      // Clean some empty arrays
+      data.domains = data.domains.filter(d => d.name && d.name.trim() !== "");
+      // Normalize goals depending on framework
+      if (data.goals && data.goals.length === 0) data.goals = null;
+      return data;
+    }
+
+    // Helper: collect goals for OKR or SMART
+    function collectGoals() {
+      const framework = document.getElementById("frameworkSelect").value;
+      if (framework === "OKR") {
+        const obj = document.getElementById("okrObjective").value;
+        const krs = [
+          { text: document.getElementById("okrKR1").value, progress: Number(document.getElementById("okrKR1Progress").value || 0) },
+          { text: document.getElementById("okrKR2").value, progress: Number(document.getElementById("okrKR2Progress").value || 0) },
+          { text: document.getElementById("okrKR3").value, progress: Number(document.getElementById("okrKR3Progress").value || 0) },
+        ].filter(k => k.text && k.text.trim() !== "");
+        return [
+          { objective: obj, keyResults: krs }
+        ];
+      } else {
+        // SMART: read from dynamic blocks
+        const blocks = Array.from(smartGoalsContainer.querySelectorAll(".smart-block"));
+        const goals = blocks.map((b) => {
+          const inputs = b.querySelectorAll("input");
+          // First is title, rest: Specific, Measurable, Achievable, Relevant, Time-bound
+          const title = inputs[0]?.value || "";
+          const specifics = Array.from(inputs).slice(1).map(i => i.value);
+          return {
+            title,
+            specifics
+          };
+        }).filter(g => g.title && g.title.trim() !== "");
+        return goals.length ? goals : null;
+      }
+    }
+
+    function domainOutcomesFromText(index) {
+      // Simple extraction: take a line from domainOutcomes
+      const text = document.getElementById("domainOutcomes").value;
+      const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
+      return lines[index] || "";
+    }
+
+    // Apply data to form (for loading)
+    function applyDataToForm(data) {
+      if (!data) return;
+      // Quick check
+      if (data.quickCheck) {
+        document.getElementById("q_energy").value = data.quickCheck.energy ?? 6;
+        document.getElementById("q_mood").value = data.quickCheck.mood ?? 6;
+        document.getElementById("q_stress").value = data.quickCheck.stress ?? 5;
+        document.getElementById("q_friction").value = data.quickCheck.friction ?? "";
+        document.getElementById("q_sleep").value = data.quickCheck.sleep ?? 7;
+        document.getElementById("q_boundary").value = data.quickCheck.boundary ?? "";
+      }
+      // Values
+      if (data.values && data.values.length >= 3) {
+        document.getElementById("v1").value = data.values[0];
+        document.getElementById("v2").value = data.values[1];
+        document.getElementById("v3").value = data.values[2];
+      }
+      // Domains
+      if (data.domains && data.domains.length) {
+        // Map by index
+        const map = data.domains;
+        if (map[0]) document.getElementById("d1").value = map[0].name || "";
+        if (map[1]) document.getElementById("d2").value = map[1].name || "";
+        if (map[2]) document.getElementById("d3").value = map[2].name || "";
+        // Outcomes lines
+        const lines = (map.map(m => m.outcome || ""));
+        if (lines[0]) document.getElementById("domainOutcomes").value = [lines[0], lines[1] || "", lines[2] || ""].join("\n");
+      }
+      // Framework
+      if (data.framework) {
+        document.getElementById("frameworkSelect").value = data.framework;
+      }
+      // OKR
+      if (data.goals && data.goals.length) {
+        const g = data.goals[0];
+        if (data.framework === "OKR") {
+          document.getElementById("okrObjective").value = g.objective ?? "";
+          if (g.keyResults) {
+            document.getElementById("okrKR1").value = g.keyResults[0]?.text ?? "";
+            document.getElementById("okrKR1Progress").value = g.keyResults[0]?.progress ?? 0;
+            document.getElementById("okrKR2").value = g.keyResults[1]?.text ?? "";
+            document.getElementById("okrKR2Progress").value = g.keyResults[1]?.progress ?? 0;
+            document.getElementById("okrKR3").value = g.keyResults[2]?.text ?? "";
+            document.getElementById("okrKR3Progress").value = g.keyResults[2]?.progress ?? 0;
+          }
+        } else {
+          // SMART: load simple titles if present
+          if (g.title) {
+            // Create a single SMART block with title
+            const block = document.querySelector(".smart-block");
+            if (block) {
+              block.querySelector("input").value = g.title;
+              const inners = block.querySelectorAll("input");
+              g.specifics?.forEach((s, i) => {
+                if (inners[i+1]) inners[i+1].value = s;
+              });
+            }
+          }
+        }
+      }
+      // Plan
+      if (data.plan) {
+        document.getElementById("planBigRock").value = data.plan.bigRock ?? "";
+        document.getElementById("planBigRockTime").value = data.plan.bigRockTime ?? 60;
+        if (data.plan.supporting && data.plan.supporting.length) {
+          document.getElementById("planSupport1").value = data.plan.supporting[0] ?? "";
+          document.getElementById("planSupport2").value = data.plan.supporting[1] ?? "";
+        }
+      }
+      // System
+      if (data.system) {
+        if (data.system.preferred) document.getElementById("systemPref").value = data.system.preferred;
+        if (data.system.templates) document.getElementById("systemTemplates").value = data.system.templates;
+      }
+      // Wellbeing
+      if (data.wellbeing) {
+        document.getElementById("wbBreaks").value = data.wellbeing.breaks ?? 2;
+        document.getElementById("wbMove").value = data.wellbeing.move ?? "short";
+        document.getElementById("wbSleep").value = data.wellbeing.sleep ?? "";
+        document.getElementById("wbBoundary").value = data.wellbeing.boundary ?? "";
+      }
+      // Cadence
+      if (data.cadence) {
+        document.getElementById("cadenceDaily").value = data.cadence.daily ?? "";
+        document.getElementById("cadenceWeekly").value = data.cadence.weekly ?? "";
+      }
+      // Signals
+      if (Array.isArray(data.signals) && data.signals.length) {
+        const cbs = document.querySelectorAll("#signalsList input[type=checkbox]");
+        cbs.forEach((cb, i) => { cb.checked = !!data.signals[i]; });
+      }
+      // MV / Start notes
+      if (data.mv) document.getElementById("mvSummary").value = data.mv;
+      if (data.startNotes) document.getElementById("startNotes").value = data.startNotes;
+      renderSummary();
+    }
+
+    // Render a human-friendly live summary
+    function renderSummary() {
+      const data = collectData();
+      // Compose a readable summary
+      let summary = [];
+      summary.push("Stop Button Protocol — Live Summary");
+      summary.push("Timestamp: " + (data.timestamp || new Date().toISOString()));
+      const qc = data.quickCheck;
+      summary.push("Self-check: Energy " + qc.energy + ", Mood " + qc.mood + ", Stress " + qc.stress);
+      summary.push("Friction: " + (qc.friction || "n/a"));
+      summary.push("Sleep quality: " + qc.sleep);
+      summary.push("Boundary: " + (qc.boundary || ""));
+
+      // Values and domains
+      summary.push("Values: " + data.values.filter(Boolean).join(" | "));
+      const doms = (data.domains || []).map(d => d.name + " → " + (d.outcome || "")).join("; ");
+      summary.push("Domains & outcomes: " + doms);
+
+      // Goals
+      summary.push("Framework: " + (data.framework || ""));
+      if (data.framework === "OKR" && data.goals && data.goals.length) {
+        const okr = data.goals[0];
+        summary.push("OKR Objective: " + (okr.objective || ""));
+        if (okr.keyResults) {
+          okr.keyResults.forEach((kr, idx) => {
+            summary.push("KR" + (idx+1) + ": " + (kr.text || "") + " [" + (kr.progress ?? 0) + "%]");
+          });
+        }
+      } else if (data.goals && data.goals.length) {
+        summary.push("SMART goals: " + data.goals.map(g => g.title || "").join(" | "));
+      }
+
+      // Plan
+      summary.push("Big Rock: " + (data.plan?.bigRock || ""));
+      summary.push("Big Rock time: " + (data.plan?.bigRockTime ?? ""));
+      if (data.plan?.supporting?.length) {
+        summary.push("Supporting: " + data.plan.supporting.join(" / "));
+      }
+
+      // System
+      summary.push("System: " + (data.system?.preferred || ""));
+      // Wellbeing
+      summary.push("Wellbeing: Breaks=" + (data.wellbeing?.breaks ?? "") + "m, Move=" + (data.wellbeing?.move ?? "") + ", Sleep='" + (data.wellbeing?.sleep ?? "") + "'");
+      summary.push("Boundary: " + (data.wellbeing?.boundary ?? ""));
+
+      // Cadence
+      summary.push("Cadence: Daily prompts = [" + (data.cadence?.daily ?? "") + "], Weekly prompts = [" + (data.cadence?.weekly ?? "") + "]");
+      // Signals
+      const sigs = data.signals || [];
+      summary.push("Signals completed: " + (sigs.filter(Boolean).length) + " / " + sigs.length);
+
+      // MV
+      if (data.mv) summary.push("One-page snapshot: " + data.mv);
+
+      // Output
+      document.getElementById("livePreview").textContent = summary.join("\n");
+    }
+
+    // Save to localStorage
+    function saveSession() {
+      const data = collectData();
+      localStorage.setItem(storageKey, JSON.stringify(data));
+      // Also show in export box for convenience
+      document.getElementById("exportBox").value = JSON.stringify(data, null, 2);
+      alert("Session saved locally.");
+    }
+
+    // Load from localStorage
+    function loadSession(silent = false) {
+      const raw = localStorage.getItem(storageKey);
+      if (!raw) {
+        if (!silent) alert("No saved session found. Start by saving a new session.");
+        renderSummary();
+        return;
+      }
+      try {
+        const data = JSON.parse(raw);
+        applyDataToForm(data);
+        if (!silent) alert("Session loaded.");
+      } catch (e) {
+        console.error(e);
+        if (!silent) alert("Failed to load session.");
+      }
+    }
+
+    // Export as JSON
+    function exportSession() {
+      const data = collectData();
+      const text = JSON.stringify(data, null, 2);
+      document.getElementById("exportBox").value = text;
+      // Also copy to clipboard for convenience
+      try {
+        navigator.clipboard.writeText(text);
+        alert("Exported JSON copied to clipboard.");
+      } catch {
+        // ignore
+      }
+    }
+
+    // Initialize
+    window.addEventListener("load", init);
+  </script>
+</body>
+</html>
