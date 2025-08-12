@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="utf-8" />
-  <title>Stop Button Protocol Studio</title>
+  <title>Stop Button Protocol Studio — Enhanced</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
+    /* THEME */
     :root{
       --bg: #0b1020;
       --card: #141a2a;
-      --muted: #93a1b5;
+      --muted: #9fb0c9;
       --fg: #e8f0ff;
       --accent: #7bd389;
       --accent2: #6a8dff;
@@ -16,113 +17,254 @@
       --danger: #ff6b6b;
       --surface: #1e2540;
       --grid: rgba(255,255,255,.05);
+      --border: #2a2f63;
+      --shadow: rgba(0,0,0,.3);
+      --ok: #54d88d;
+      --info: #6a8dff;
+      --focus: #89b2ff;
     }
+    @media (prefers-color-scheme: light) {
+      :root {
+        --bg: #f6f8fc;
+        --card: #ffffff;
+        --muted: #5a6a83;
+        --fg: #0c1020;
+        --accent: #159d59;
+        --accent2: #3b6df6;
+        --warning: #b76b00;
+        --danger: #c03232;
+        --surface: #eef2ff;
+        --grid: rgba(0,0,0,.06);
+        --border: #d6ddff;
+        --shadow: rgba(0,0,0,.08);
+        --ok: #159d59;
+        --info: #3b6df6;
+        --focus: #1f5eff;
+      }
+    }
+    [data-theme="light"] {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --muted: #5a6a83;
+      --fg: #0c1020;
+      --accent: #159d59;
+      --accent2: #3b6df6;
+      --warning: #b76b00;
+      --danger: #c03232;
+      --surface: #eef2ff;
+      --grid: rgba(0,0,0,.06);
+      --border: #d6ddff;
+      --shadow: rgba(0,0,0,.08);
+      --ok: #159d59;
+      --info: #3b6df6;
+      --focus: #1f5eff;
+    }
+
     *{box-sizing:border-box}
     html,body{margin:0;background:var(--bg);color:var(--fg);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-    .container{max-width:1100px;margin:0 auto;padding:20px 16px}
-    h1{font-size:1.25rem;margin:0 0 6px}
-    header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;padding:12px 0 16px;border-bottom:1px solid #223
-      ;}
-    header .badge{font-size:.8rem;background:#223; padding:4px 8px;border-radius:6px;color:#cfe0ff}
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+    h1{font-size:1.25rem;margin:0 0 4px}
+    h2{font-size:1rem;margin:0 0 8px}
+    .muted{color:var(--muted)}
+    .hint{font-size:.85rem;color:var(--muted)}
+    .kbd{font-family: ui-monospace,SFMono-Regular,Monaco,monospace; font-size:.85em; padding:2px 6px; border-radius:6px;background:var(--surface); border:1px solid var(--border); color:var(--fg)}
+    hr{border:none;border-top:1px solid var(--border);margin:12px 0}
+
+    /* HEADER */
+    header{position:sticky;top:0;z-index:20;background:linear-gradient(to bottom, var(--bg), transparent);
+      padding:8px 0 10px;border-bottom:1px solid var(--border);backdrop-filter: saturate(140%) blur(6px)}
+    header .row{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+    .badge{font-size:.8rem;background:var(--surface); padding:4px 8px;border-radius:999px;color:var(--muted);border:1px solid var(--border)}
+    .chip{display:inline-flex;align-items:center;gap:6px;padding:4px 8px;border-radius:999px;border:1px solid var(--border);background:var(--surface);font-size:.85rem}
+    .score{font-weight:700}
+    .status{font-size:.85rem}
+    .status.saving{color:var(--warning)}
+    .status.saved{color:var(--accent)}
+
+    /* QUICK NAV */
+    .qnav{position:sticky;top:58px;z-index:19;background:var(--bg);padding:6px 0;border-bottom:1px dashed var(--border)}
+    .qnav .links{display:flex;gap:8px;overflow:auto;scrollbar-width:none}
+    .qnav .links::-webkit-scrollbar{display:none}
+    .qnav a{white-space:nowrap;text-decoration:none;color:var(--muted);font-size:.85rem;border:1px solid var(--border);padding:6px 10px;border-radius:999px}
+    .qnav a:hover{color:var(--fg);border-color:var(--info)}
+    .qnav .tools{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+    /* LAYOUT */
     .grid{display:grid;gap:14px}
-    @media (min-width:900px){
-      .grid{grid-template-columns:1fr 1fr}
-    }
-    .card{background:var(--card);border:1px solid #2a2f63;border-radius:12px;padding:14px 14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03)}
-    .card h2{font-size:1rem;margin:0 0 8px}
+    @media (min-width:900px){ .grid{grid-template-columns:1fr 1fr} }
+    .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;box-shadow:inset 0 1px 0 rgba(255,255,255,.03), 0 4px 12px var(--shadow); position: relative;}
+    .card.collapsed > *:not(h2){display:none}
+    .card h2{display:flex;align-items:center;gap:8px}
+    .toggle-collapse{margin-left:auto; background:transparent;border:1px dashed var(--border);color:var(--muted);padding:4px 8px;border-radius:6px;cursor:pointer}
+    .toggle-collapse:hover{color:var(--fg)}
+
+    /* FORMS */
     .row{display:flex;gap:8px;flex-wrap:wrap}
     label{font-size:.85rem; color:#dbe7ff}
+    [data-theme="light"] label{color:#233}
     input[type="text"], input[type="number"], textarea, select{
-      width:100%; padding:8px 10px; border-radius:8px; border:1px solid #3a3f7a; background:#0e1333; color:#e8f0ff;
+      width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--fg);
       outline: none;
     }
     textarea{min-height:72px; resize:vertical}
-    .btn{cursor:pointer; padding:10px 14px; border-radius:8px; border:1px solid #3a3f7a; background:#1b2142; color:#e8f0ff; transition:.2s; }
-    .btn:hover{ transform: translateY(-1px); background:#262b63}
-    .btn.primary{ background: linear-gradient(135deg, #2a7dff, #6a8dff); border: none; }
-    .btn.danger{ background:#3a2238; border:1px solid #6b254a; }
-    .btn.ghost{ background:transparent; border:1px dashed #3a3f7a; }
-    .section{padding:6px 0 0}
-    .section + .section{border-top:1px solid #2a2f63;padding-top:14px;margin-top:14px}
-    .inline{display:flex;gap:8px;align-items:center}
-    .hint{font-size:.8rem;color:var(--muted)}
-    .summary{white-space:pre-wrap;background:#0b1138;border:1px solid #2e2f66;border-radius:8px;padding:12px}
-    .muted{color:var(--muted)}
-    .kbd{font-family: ui-monospace,SFMono-Regular,Monaco,monospace; font-size:.85em; padding:2px 6px; border-radius:6px;background:#222e63}
-    details{border:1px solid #2a2f63;border-radius:8px;padding:6px 8px}
-    summary{cursor:pointer;font-weight:600}
-    .section-title{margin:6px 0 8px;font-weight:700}
-    .list{margin:6px 0 0 18px}
-    hr{border:none;border-top:1px solid #2a2f63;margin:12px 0}
+    input:focus, textarea:focus, select:focus{border-color:var(--focus); box-shadow:0 0 0 3px color-mix(in srgb, var(--focus) 20%, transparent)}
+
+    .btn{cursor:pointer; padding:10px 14px; border-radius:8px; border:1px solid var(--border); background:var(--surface); color:var(--fg); transition:.2s; }
+    .btn:hover{ transform: translateY(-1px); background:color-mix(in srgb, var(--surface) 85%, var(--fg))}
+    .btn.primary{ background: linear-gradient(135deg, var(--info), #8aa4ff); border: none; color:white }
+    .btn.danger{ background:linear-gradient(135deg, #6b254a, #a43b64); border:none; color:white }
+    .btn.ghost{ background:transparent; border:1px dashed var(--border); }
+    .btn.small{ padding:6px 10px; font-size:.9rem }
+    .btn.icon{ display:inline-flex; align-items:center; gap:8px }
+    .btn.toggle{ background:transparent; border:1px dashed var(--border) }
+
+    /* SLIDERS */
+    .slider-row{display:flex;align-items:center;gap:8px}
+    input[type=range]{appearance:none;height:6px;border-radius:999px;background:linear-gradient(90deg,var(--accent2),var(--accent));outline:none}
+    input[type=range]::-webkit-slider-thumb{appearance:none;width:18px;height:18px;border-radius:50%;background:var(--fg);border:2px solid var(--info)}
+    input[type=range]::-moz-range-thumb{width:18px;height:18px;border-radius:50%;background:var(--fg);border:2px solid var(--info)}
+
+    /* OKR KR LIST */
+    .kr-row{display:grid;grid-template-columns:1fr minmax(120px,220px) 64px 32px 32px;gap:8px;align-items:center}
+    .kr-row .progressbar{height:10px;background:var(--grid);border-radius:999px;overflow:hidden;border:1px solid var(--border)}
+    .kr-row .progressbar > span{display:block;height:100%;background:linear-gradient(90deg,var(--accent2),var(--accent))}
+    .kr-row .iconbtn{background:transparent;border:1px dashed var(--border);border-radius:8px;height:36px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer}
+    .kr-row .iconbtn:hover{color:var(--fg);border-color:var(--info)}
+
+    /* TOAST */
+    .toast{position:fixed;bottom:16px;right:16px;z-index:50;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:10px 12px;box-shadow:0 6px 20px var(--shadow);display:none}
+    .toast.show{display:block;animation:fadein .2s ease}
+    @keyframes fadein{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+    /* SUMMARY */
+    .summary{white-space:pre-wrap;background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:12px}
+
+    /* ACCESSIBILITY */
+    .sr-only{position:absolute!important;height:1px;width:1px;clip:rect(1px,1px,1px,1px);overflow:hidden;white-space:nowrap}
+
+    /* PRINT */
+    @media print{
+      header, .qnav, #data-title, #exportBox, #importBox, #importFile, #startNotes, .btn, .toggle-collapse { display:none !important }
+      .container{max-width:100%;padding:0}
+      .card{border:1px solid #bbb; box-shadow:none}
+      body{background:white;color:#000}
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <div>
-        <h1>Stop Button Protocol Studio</h1>
-        <div class="hint">Pause • Re-access • Refresh • Re-align goals and wellbeing</div>
-      </div>
-      <div class="inline">
-        <span class="badge" title="Local-only data">Local</span>
-        <button class="btn" id="newSessionBtn" title="Start fresh protocol session">New Session</button>
-        <button class="btn" id="saveBtn" title="Save current session">Save</button>
-        <button class="btn" id="loadBtn" title="Load last saved session">Load</button>
+      <div class="row">
+        <div>
+          <h1>Stop Button Protocol Studio</h1>
+          <div class="hint">Pause • Re-access • Refresh • Re-align goals and wellbeing</div>
+        </div>
+        <div class="row" style="justify-content:flex-end">
+          <span class="badge" title="Local-only data">Local</span>
+          <span class="chip" id="scoreChip" title="Average of Energy, Mood and inverse of Stress">Score: <span class="score" id="wbScore">–</span></span>
+          <span class="chip status saved" id="saveStatus" aria-live="polite">Saved</span>
+          <button class="btn toggle" id="focusModeBtn" title="Toggle Focus Mode (minimal essentials)">Focus</button>
+          <button class="btn toggle" id="themeToggle" title="Toggle theme">Theme</button>
+          <button class="btn" id="newSessionBtn" title="Start fresh protocol session (N)"><span aria-hidden="true">🆕</span> New</button>
+          <button class="btn" id="saveBtn" title="Save current session (Ctrl/Cmd+S)"><span aria-hidden="true">💾</span> Save</button>
+          <button class="btn" id="loadBtn" title="Load last saved session"><span aria-hidden="true">📥</span> Load</button>
+          <button class="btn" id="printBtn" title="Print summary (P)"><span aria-hidden="true">🖨️</span> Print</button>
+        </div>
       </div>
     </header>
+
+    <nav class="qnav">
+      <div class="links" aria-label="Quick navigation">
+        <a href="#selfcheck-title">Self-Check</a>
+        <a href="#values-title">Values</a>
+        <a href="#framework-title">Goals</a>
+        <a href="#planning-title">Plan</a>
+        <a href="#system-title">System</a>
+        <a href="#wellbeing-title">Wellbeing</a>
+        <a href="#cadence-title">Cadence</a>
+        <a href="#signals-title">Signals</a>
+        <a href="#minimal-title">Snapshot</a>
+        <a href="#quickstart-title">7-Day</a>
+        <a href="#data-title">Data</a>
+        <a href="#preview-title">Summary</a>
+      </div>
+      <div class="tools">
+        <button class="btn small" id="collapseAllBtn" title="Collapse all sections">Collapse All</button>
+        <button class="btn small" id="expandAllBtn" title="Expand all sections">Expand All</button>
+        <button class="btn small" id="copySummaryBtn" title="Copy summary to clipboard">Copy Summary</button>
+        <button class="btn small" id="shareLinkBtn" title="Create a shareable link (URL hash only)">Share Link</button>
+        <span class="hint">Shortcuts: <span class="kbd">Ctrl/Cmd+S</span>, <span class="kbd">N</span>, <span class="kbd">E</span>, <span class="kbd">P</span>, <span class="kbd">/</span></span>
+      </div>
+    </nav>
 
     <div class="grid">
       <!-- 1) Quick Self-Check -->
       <section class="card section" aria-labelledby="selfcheck-title">
-        <h2 id="selfcheck-title">1) Quick Self-Check (pause essentials)</h2>
+        <h2 id="selfcheck-title">1) Quick Self-Check
+          <button class="toggle-collapse" data-toggle="#selfcheck-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
-          <div style="flex:1 1 150px; min-width:180px">
-            <label>Energy today (1-10)</label>
-            <input type="number" id="q_energy" min="1" max="10" value="6" />
+          <div style="flex:1 1 200px; min-width:200px">
+            <label for="q_energy">Energy today (1-10)</label>
+            <div class="slider-row">
+              <input type="range" id="q_energy_range" min="1" max="10" value="6" aria-label="Energy slider" />
+              <input type="number" id="q_energy" min="1" max="10" value="6" style="max-width:84px"/>
+            </div>
           </div>
-          <div style="flex:1 1 150px; min-width:180px">
-            <label>Mood today (1-10)</label>
-            <input type="number" id="q_mood" min="1" max="10" value="6" />
+          <div style="flex:1 1 200px; min-width:200px">
+            <label for="q_mood">Mood today (1-10)</label>
+            <div class="slider-row">
+              <input type="range" id="q_mood_range" min="1" max="10" value="6" aria-label="Mood slider" />
+              <input type="number" id="q_mood" min="1" max="10" value="6" style="max-width:84px"/>
+            </div>
           </div>
-          <div style="flex:1 1 150px; min-width:180px">
-            <label>Stress level (1-10)</label>
-            <input type="number" id="q_stress" min="1" max="10" value="5" />
+          <div style="flex:1 1 200px; min-width:200px">
+            <label for="q_stress">Stress level (1-10)</label>
+            <div class="slider-row">
+              <input type="range" id="q_stress_range" min="1" max="10" value="5" aria-label="Stress slider" />
+              <input type="number" id="q_stress" min="1" max="10" value="5" style="max-width:84px"/>
+            </div>
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>Biggest current friction</label>
+            <label for="q_friction">Biggest current friction</label>
             <input type="text" id="q_friction" placeholder="e.g., overwhelm from backlog" value="Backlog and decision fatigue" />
           </div>
-          <div style="flex:1 1 180px; min-width:180px">
-            <label>Sleep quality last night (1-10)</label>
-            <input type="number" id="q_sleep" min="1" max="10" value="7" />
+          <div style="flex:1 1 200px; min-width:200px">
+            <label for="q_sleep">Sleep quality last night (1-10)</label>
+            <div class="slider-row">
+              <input type="range" id="q_sleep_range" min="1" max="10" value="7" aria-label="Sleep quality slider" />
+              <input type="number" id="q_sleep" min="1" max="10" value="7" style="max-width:84px"/>
+            </div>
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>One boundary you’re protecting or need</label>
+            <label for="q_boundary">One boundary you’re protecting or need</label>
             <input type="text" id="q_boundary" placeholder="e.g., no work after 9pm" value="No work emails after 9pm" />
           </div>
         </div>
-        <div class="hint" style="margin-top:6px">Tip: treat this as a neutral snapshot—no self-critique.</div>
+        <div class="hint" style="margin-top:6px">Tip: neutral snapshot—no self-critique.</div>
       </section>
 
       <!-- 2) Values & Domains -->
       <section class="card section" aria-labelledby="values-title">
-        <h2 id="values-title">2) Values & Domains</h2>
+        <h2 id="values-title">2) Values & Domains
+          <button class="toggle-collapse" data-toggle="#values-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 300px; min-width:240px">
-            <label>Core values (3)</label>
+            <label for="v1">Core values (3)</label>
             <input type="text" id="v1" placeholder="Value 1" value="Autonomy" />
             <input type="text" id="v2" placeholder="Value 2" value="Wellbeing" style="margin-top:6px" />
             <input type="text" id="v3" placeholder="Value 3" value="Growth" style="margin-top:6px" />
           </div>
           <div style="flex:1 1 300px; min-width:280px">
-            <label>Domains to consider (3–4)</label>
+            <label for="d1">Domains to consider (3–4)</label>
             <input type="text" id="d1" placeholder="Domain 1 (e.g., Career)" value="Wellbeing" />
             <input type="text" id="d2" placeholder="Domain 2" value="Career/learning" style="margin-top:6px" />
             <input type="text" id="d3" placeholder="Domain 3" value="Relationships" style="margin-top:6px" />
             <input type="text" id="d4" placeholder="Domain 4 (optional)" value="" style="margin-top:6px" />
           </div>
           <div style="flex:1 1 100%; min-width:260px">
-            <label>Outcomes in 3–6 months for each domain (short sentences)</label>
+            <label for="domainOutcomes">Outcomes in 3–6 months for each domain (short sentences)</label>
             <textarea id="domainOutcomes" placeholder="Describe outcomes per domain, one per line." rows="5">Wellbeing: better sleep, energy, lower stress.
 Career: clear learning path, defined next role.
 Relationships: stronger connection with close ones.</textarea>
@@ -132,91 +274,87 @@ Relationships: stronger connection with close ones.</textarea>
 
       <!-- 3) Goals Framework -->
       <section class="card section" aria-labelledby="framework-title">
-        <h2 id="framework-title">3) Goals Framework</h2>
+        <h2 id="framework-title">3) Goals Framework
+          <button class="toggle-collapse" data-toggle="#framework-title">Collapse</button>
+        </h2>
         <div class="row" style="align-items:flex-end;flex-wrap:wrap">
-          <div style="flex:1 1 240px; min-width:240px">
-            <label>Framework</label>
+          <div style="flex:1 1 260px; min-width:240px">
+            <label for="frameworkSelect">Framework</label>
             <select id="frameworkSelect" aria-label="Choose goal framework">
               <option value="OKR">OKRs (Objectives & Key Results)</option>
               <option value="SMART">SMART Goals</option>
             </select>
-            <div class="hint" style="margin-top:6px">Choose what you will actually use. You can switch later and export/import.</div>
+            <div class="hint" style="margin-top:6px">Choose what you’ll actually use. You can switch later and export/import.</div>
           </div>
 
-          <div id="okrPanel" class="section" style="flex:1 1 320px; min-width:260px; padding:8px 0 0; display:block;">
-            <label style="margin-bottom:6px; display:block">OKR: Objective</label>
+          <!-- OKR Panel -->
+          <div id="okrPanel" class="section" style="flex:1 1 380px; min-width:280px; padding:8px 0 0; display:block;">
+            <label for="okrObjective" style="margin-bottom:6px; display:block">OKR: Objective</label>
             <input type="text" id="okrObjective" placeholder="One clear objective for the period" value="Stabilize daily routine and energy" />
-            <div class="row" style="margin-top:8px">
-              <div style="flex:1 1 180px">
-                <label>Key Result 1</label>
-                <input type="text" id="okrKR1" placeholder="Ex: Complete morning routine" value="Establish morning routine by day 3" />
-                <input type="number" id="okrKR1Progress" min="0" max="100" value="20" style="margin-top:6px" />
-              </div>
-              <div style="flex:1 1 180px">
-                <label>Key Result 2</label>
-                <input type="text" id="okrKR2" placeholder="Ex: 7 hours sleep consistently" value="Sleep 7 hours most nights" />
-                <input type="number" id="okrKR2Progress" min="0" max="100" value="30" style="margin-top:6px" />
-              </div>
-              <div style="flex:1 1 180px">
-                <label>Key Result 3</label>
-                <input type="text" id="okrKR3" placeholder="Ex: 20 mins movement daily" value="Move 20 mins daily" />
-                <input type="number" id="okrKR3Progress" min="0" max="100" value="10" style="margin-top:6px" />
+            <div class="row" style="margin-top:8px; width:100%">
+              <div style="flex:1 1 100%; min-width:200px">
+                <div class="row" style="align-items:center;justify-content:space-between">
+                  <div class="hint">Key Results</div>
+                  <div class="row">
+                    <button class="btn small" id="addKrBtn" title="Add Key Result">+ Add KR</button>
+                  </div>
+                </div>
+                <div id="krList" style="display:flex; flex-direction:column; gap:8px; margin-top:6px"></div>
               </div>
             </div>
           </div>
 
-          <div id="smartPanel" class="section" style="flex:1 1 320px; min-width:260px; padding:8px 0 0; display:none;">
+          <!-- SMART Panel -->
+          <div id="smartPanel" class="section" style="flex:1 1 380px; min-width:280px; padding:8px 0 0; display:none;">
             <label style="margin-bottom:6px; display:block">SMART Goals</label>
             <div id="smartGoalsContainer">
-              <!-- Smart goal blocks are cloneable via JS -->
-              <div class="smart-block" style="border:1px solid #2a2f63; padding:8px; border-radius:8px; margin-bottom:8px;">
-                <input placeholder="Goal title" style="width:100%; margin-bottom:6px" />
-                <div class="row" style="gap:6px; flex-wrap:wrap">
-                  <input placeholder="Specific" style="flex:1 1 180px" />
-                  <input placeholder="Measurable" style="flex:1 1 180px" />
-                  <input placeholder="Achievable" style="flex:1 1 180px" />
-                  <input placeholder="Relevant" style="flex:1 1 180px" />
-                  <input placeholder="Time-bound" style="flex:1 1 180px" />
-                </div>
-              </div>
+              <!-- Smart goal blocks are cloneable -->
             </div>
-            <button class="btn" id="addSmartGoalBtn" title="Add SMART goal">Add SMART Goal</button>
+            <div class="row" style="margin-top:6px">
+              <button class="btn small" id="addSmartGoalBtn" title="Add SMART goal">+ Add SMART Goal</button>
+            </div>
           </div>
-
         </div>
-        <div class="hint" style="margin-top:6px">Tip: OKR focuses on an Objective with measurable Key Results. SMART is a single, well-defined goal per block.</div>
+        <div class="hint" style="margin-top:6px">OKR = an Objective with measurable Key Results. SMART = single, well‑defined goals.</div>
       </section>
 
       <!-- 4) Plan & Priorities -->
       <section class="card section" aria-labelledby="planning-title">
-        <h2 id="planning-title">4) Planning & Priorities</h2>
+        <h2 id="planning-title">4) Planning & Priorities
+          <button class="toggle-collapse" data-toggle="#planning-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 320px; min-width:260px">
-            <label>Big Rock (1 big weekly priority)</label>
+            <label for="planBigRock">Big Rock (1 big weekly priority)</label>
             <input type="text" id="planBigRock" placeholder="e.g., Ship progress on new feature" value="Establish daily routine and energy baseline" />
           </div>
           <div style="flex:1 1 240px; min-width:240px">
-            <label>Supporting Actions (2)</label>
+            <label for="planSupport1">Supporting Actions (2)</label>
             <input type="text" id="planSupport1" placeholder="Support action 1" value="Sleep window 7–8 hours" />
-            <input type="text" id="planSupport2" placeholder="Support action 2" value="5-min morning movement" style="margin-top:6px" />
+            <input type="text" id="planSupport2" placeholder="Support action 2" value="5‑min morning movement" style="margin-top:6px" />
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>Time-boxing (minutes)</label>
+            <label for="planBigRockTime">Time-boxing (minutes)</label>
             <div class="row" style="gap:6px; align-items:center;">
               <input type="number" id="planBigRockTime" min="15" max="240" value="90" />
               <span class="hint">for Big Rock</span>
             </div>
           </div>
         </div>
+        <div class="row" style="margin-top:6px">
+          <button class="btn small" id="genSnapshotBtn" title="Generate one-page snapshot from current data">Generate Snapshot</button>
+        </div>
         <div class="hint" style="margin-top:6px">Minimal viable plan: 1 big rock + 2 actions with clear time budgets.</div>
       </section>
 
       <!-- 5) Organization System -->
       <section class="card section" aria-labelledby="system-title">
-        <h2 id="system-title">5) Organize Your System</h2>
+        <h2 id="system-title">5) Organize Your System
+          <button class="toggle-collapse" data-toggle="#system-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap; align-items:flex-end">
           <div style="flex:1 1 320px; min-width:260px">
-            <label>Preferred method</label>
+            <label for="systemPref">Preferred method</label>
             <select id="systemPref">
               <option value="digital">Digital (Notion / Todoist / Calendar)</option>
               <option value="analog">Analog (Notebook + simple templates)</option>
@@ -224,8 +362,13 @@ Relationships: stronger connection with close ones.</textarea>
             </select>
           </div>
           <div style="flex:1 1 320px; min-width:260px">
-            <label>Template guidance</label>
+            <label for="systemTemplates">Template guidance</label>
             <textarea id="systemTemplates" placeholder="Describe structure you’ll create (e.g., Sections: Goals, Tasks, Wellbeing)" rows="4"></textarea>
+            <div class="row" style="gap:6px; margin-top:6px">
+              <button class="btn small ghost" data-template="notion">Fill Notion Template</button>
+              <button class="btn small ghost" data-template="todoist">Fill Todoist Template</button>
+              <button class="btn small ghost" data-template="analog">Fill Analog Template</button>
+            </div>
           </div>
         </div>
         <div class="hint" style="margin-top:6px">Core capture: Goals, Tasks, Wellbeing, Reflections. One-page philosophy helps maintain focus.</div>
@@ -233,48 +376,48 @@ Relationships: stronger connection with close ones.</textarea>
 
       <!-- 6) Wellbeing Plan -->
       <section class="card section" aria-labelledby="wellbeing-title">
-        <h2 id="wellbeing-title">6) Wellbeing Forward Plan</h2>
+        <h2 id="wellbeing-title">6) Wellbeing Forward Plan
+          <button class="toggle-collapse" data-toggle="#wellbeing-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 220px; min-width:220px">
-            <label>Daily micro-breaks</label>
+            <label for="wbBreaks">Daily micro-breaks</label>
             <select id="wbBreaks">
-              <option value="2">2 minutes x 3-4 times/day</option>
-              <option value="5">5 minutes x 2 times/day</option>
+              <option value="2">2 minutes × 3–4 times/day</option>
+              <option value="5">5 minutes × 2 times/day</option>
             </select>
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>Movement motivation</label>
+            <label for="wbMove">Movement motivation</label>
             <select id="wbMove">
               <option value="short">4–10 minutes light movement</option>
               <option value="moderate">15–30 minutes daily</option>
             </select>
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>Sleep wind-down routine</label>
+            <label for="wbSleep">Sleep wind-down routine</label>
             <input type="text" id="wbSleep" placeholder="e.g., 30 minutes of dim light, no screens" value="Dim lights, no screens 30m before bed" />
           </div>
         </div>
         <div class="row" style="margin-top:6px; gap:6px; align-items:center">
-          <label>Boundaries to enforce this week</label>
+          <label for="wbBoundary">Boundaries to enforce this week</label>
           <input type="text" id="wbBoundary" placeholder="One boundary (e.g., after 9pm)" value="No work after 9pm" style="flex:1 1 300px" />
         </div>
       </section>
 
       <!-- 7) Cadence & Rituals -->
       <section class="card section" aria-labelledby="cadence-title">
-        <h2 id="cadence-title">7) Cadence & Rituals</h2>
+        <h2 id="cadence-title">7) Cadence & Rituals
+          <button class="toggle-collapse" data-toggle="#cadence-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 320px; min-width:260px">
-            <label>Daily reflection prompts</label>
-            <textarea id="cadenceDaily" rows="4" placeholder="What went well? What needs attention? Next small step?" >
-What went well today? What needs attention? Next small step?
-            </textarea>
+            <label for="cadenceDaily">Daily reflection prompts</label>
+            <textarea id="cadenceDaily" rows="4" placeholder="What went well? What needs attention? Next small step?">What went well today? What needs attention? Next small step?</textarea>
           </div>
           <div style="flex:1 1 320px; min-width:260px">
-            <label>Weekly review prompts</label>
-            <textarea id="cadenceWeekly" rows="4" placeholder="Rethink goals, adjust priorities, review wellbeing" >
-Rethink goals, adjust priorities, plan next week, review wellbeing metrics
-            </textarea>
+            <label for="cadenceWeekly">Weekly review prompts</label>
+            <textarea id="cadenceWeekly" rows="4" placeholder="Rethink goals, adjust priorities, review wellbeing">Rethink goals, adjust priorities, plan next week, review wellbeing metrics</textarea>
           </div>
         </div>
         <div class="hint" style="margin-top:6px">Cadence should be consistent and lightweight.</div>
@@ -282,8 +425,10 @@ Rethink goals, adjust priorities, plan next week, review wellbeing metrics
 
       <!-- 8) Signals & Quick Check -->
       <section class="card section" aria-labelledby="signals-title">
-        <h2 id="signals-title">8) Signals You’re on Track</h2>
-        <ul class="list" id="signalsList">
+        <h2 id="signals-title">8) Signals You’re on Track
+          <button class="toggle-collapse" data-toggle="#signals-title">Collapse</button>
+        </h2>
+        <ul class="list" id="signalsList" style="margin:6px 0 0 18px">
           <li><input type="checkbox" id="sig1" /> You feel clearer about direction</li>
           <li><input type="checkbox" id="sig2" /> You take action on small steps</li>
           <li><input type="checkbox" id="sig3" /> Preventive wellbeing habits are happening</li>
@@ -292,10 +437,12 @@ Rethink goals, adjust priorities, plan next week, review wellbeing metrics
 
       <!-- 9) Minimal Viable System -->
       <section class="card section" aria-labelledby="minimal-title">
-        <h2 id="minimal-title">9) Minimal Viable System</h2>
+        <h2 id="minimal-title">9) Minimal Viable System
+          <button class="toggle-collapse" data-toggle="#minimal-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 360px; min-width:320px">
-            <label>One-page capture (summary)</label>
+            <label for="mvSummary">One-page capture (summary)</label>
             <textarea id="mvSummary" placeholder="Today: top task, wellbeing task, quick reflection" rows="4"></textarea>
           </div>
         </div>
@@ -303,20 +450,22 @@ Rethink goals, adjust priorities, plan next week, review wellbeing metrics
 
       <!-- 10) Quick-start 7-Day Plan -->
       <section class="card section" aria-labelledby="quickstart-title">
-        <h2 id="quickstart-title">10) Quick-start 7-Day Plan</h2>
+        <h2 id="quickstart-title">10) Quick-start 7-Day Plan
+          <button class="toggle-collapse" data-toggle="#quickstart-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap">
           <div style="flex:1 1 320px; min-width:320px">
             <ol class="list" id="sevenDayPlan" style="margin-top:6px">
-              <li>Day 0: Prepare stop space & choose framework</li>
-              <li>Day 1: 15-minute pause, draft Objective + 2 Key Results or 1 SMART goal</li>
-              <li>Day 2–4: Daily 5-minute wellbeing checks + 10-minute planning</li>
-              <li>Day 5: 30-minute weekly planning block</li>
-              <li>Day 6: Sleep/wellbeing focus, adjust wind-down</li>
-              <li>Day 7: Weekly reset & plan next week</li>
+              <li><label><input type="checkbox" class="dchk"> Day 0: Prepare stop space & choose framework</label></li>
+              <li><label><input type="checkbox" class="dchk"> Day 1: 15-minute pause, draft Objective + 2 Key Results or 1 SMART goal</label></li>
+              <li><label><input type="checkbox" class="dchk"> Day 2–4: Daily 5-minute wellbeing checks + 10-minute planning</label></li>
+              <li><label><input type="checkbox" class="dchk"> Day 5: 30-minute weekly planning block</label></li>
+              <li><label><input type="checkbox" class="dchk"> Day 6: Sleep/wellbeing focus, adjust wind-down</label></li>
+              <li><label><input type="checkbox" class="dchk"> Day 7: Weekly reset & plan next week</label></li>
             </ol>
           </div>
           <div style="flex:1 1 260px; min-width:260px">
-            <label>Templates & quick-start notes</label>
+            <label for="startNotes">Templates & quick-start notes</label>
             <textarea id="startNotes" placeholder="Notes to guide your first week" rows="6"></textarea>
           </div>
         </div>
@@ -324,18 +473,34 @@ Rethink goals, adjust priorities, plan next week, review wellbeing metrics
 
       <!-- 11) Import / Export / Templates -->
       <section class="card section" aria-labelledby="data-title">
-        <h2 id="data-title">11) Data & Templates</h2>
+        <h2 id="data-title">11) Data & Templates
+          <button class="toggle-collapse" data-toggle="#data-title">Collapse</button>
+        </h2>
         <div class="row" style="flex-wrap:wrap; align-items:flex-end">
           <div style="flex:1 1 420px; min-width:320px">
-            <label>Export JSON</label>
-            <button class="btn" id="exportBtn" title="Export current session as JSON">Export</button>
+            <label for="exportBox">Export JSON</label>
+            <div class="row" style="gap:6px">
+              <button class="btn small" id="exportBtn" title="Export current session as JSON (E)">Export</button>
+              <button class="btn small" id="downloadBtn" title="Download JSON file">Download</button>
+            </div>
             <textarea id="exportBox" placeholder="Exported JSON will appear here" rows="6" style="width:100%; margin-top:6px"></textarea>
           </div>
           <div style="flex:1 1 420px; min-width:320px">
-            <label>Import JSON</label>
+            <label for="importFile">Import JSON</label>
             <input type="file" id="importFile" accept="application/json" />
             <textarea id="importBox" placeholder="Or paste JSON here" rows="6" style="width:100%; margin-top:6px"></textarea>
-            <button class="btn" id="importBtn" style="margin-top:6px" title="Import JSON to load into the form">Import</button>
+            <div class="row" style="gap:6px; margin-top:6px">
+              <button class="btn small" id="importBtn" title="Import JSON to load into the form">Import</button>
+              <button class="btn small ghost" id="loadFromUrlBtn" title="Load from URL hash if present">Load from URL</button>
+              <button class="btn small ghost" id="clearStorageBtn" title="Clear local storage for this app">Clear Local</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:8px; flex-wrap:wrap">
+          <div style="flex:1 1 100%">
+            <label>History (last 10 saves)</label>
+            <div id="historyList" class="hint" style="margin-top:6px">No history yet.</div>
           </div>
         </div>
       </section>
@@ -343,416 +508,783 @@ Rethink goals, adjust priorities, plan next week, review wellbeing metrics
 
     <hr/>
     <section class="card section" aria-labelledby="preview-title">
-      <h2 id="preview-title" class="section-title">Live Preview / Summary</h2>
+      <h2 id="preview-title" class="section-title">Live Preview / Summary
+        <button class="toggle-collapse" data-toggle="#preview-title">Collapse</button>
+      </h2>
       <div class="summary" id="livePreview" aria-live="polite"></div>
     </section>
-
   </div>
 
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
   <script>
-    // Quantum-leaning, self-contained tool to execute the Stop Button protocol.
-    // LocalStorage persistence
+    // Enhanced Stop Button Protocol Studio
+    const version = "2.0.0";
     const storageKey = "stopButtonSession";
+    const historyKey = "stopButtonHistory";
+    const themeKey = "stopButtonTheme";
+    let autosaveTimer = null;
+    let dirtySinceSave = false;
+
+    // Shortcuts
+    const $ = (sel, root=document) => root.querySelector(sel);
+    const $$ = (sel, root=document) => Array.from(root.querySelectorAll(sel));
 
     // Elements
-    const frameworkSelect = document.getElementById("frameworkSelect");
-    const okrPanel = document.getElementById("okrPanel");
-    const smartPanel = document.getElementById("smartPanel");
-    const addSmartGoalBtn = document.getElementById("addSmartGoalBtn");
-    const smartGoalsContainer = document.getElementById("smartGoalsContainer");
+    const frameworkSelect = $("#frameworkSelect");
+    const okrPanel = $("#okrPanel");
+    const smartPanel = $("#smartPanel");
+    const smartGoalsContainer = $("#smartGoalsContainer");
+    const addSmartGoalBtn = $("#addSmartGoalBtn");
+    const addKrBtn = $("#addKrBtn");
+    const krList = $("#krList");
+    const saveStatus = $("#saveStatus");
+    const scoreChip = $("#wbScore");
 
-    // Initialize
-    function init() {
-      // Framework toggle
-      frameworkSelect.addEventListener("change", () => {
-        const v = frameworkSelect.value;
-        if (v === "OKR") {
-          okrPanel.style.display = "block";
-          smartPanel.style.display = "none";
-        } else {
-          okrPanel.style.display = "none";
-          smartPanel.style.display = "block";
-        }
-        renderSummary();
-      });
-
-      // Smart: add initial block (already exists as placeholder)
-      addSmartGoalBtn.addEventListener("click", () => {
-        const block = document.createElement("div");
-        block.className = "smart-block";
-        block.style.border = "1px solid #2a2f63";
-        block.style.padding = "8px";
-        block.style.borderRadius = "8px";
-        block.style.marginTop = "6px";
-
-        block.innerHTML = `
-          <input placeholder="Goal title" style="width:100%; margin-bottom:6px" />
-          <div class="row" style="gap:6px; flex-wrap:wrap">
-            <input placeholder="Specific" style="flex:1 1 180px" />
-            <input placeholder="Measurable" style="flex:1 1 180px" />
-            <input placeholder="Achievable" style="flex:1 1 180px" />
-            <input placeholder="Relevant" style="flex:1 1 180px" />
-            <input placeholder="Time-bound" style="flex:1 1 180px" />
-          </div>`;
-        smartGoalsContainer.appendChild(block);
-      });
-
-      // Save / Load
-      document.getElementById("saveBtn").addEventListener("click", saveSession);
-      document.getElementById("loadBtn").addEventListener("click", loadSession);
-      document.getElementById("newSessionBtn").addEventListener("click", newSession);
-
-      // Export / Import
-      document.getElementById("exportBtn").addEventListener("click", exportSession);
-      document.getElementById("importBtn").addEventListener("click", () => {
-        // Import from text area
-        const text = document.getElementById("importBox").value.trim();
-        if (!text) { alert("Please paste or select a file with JSON data."); return; }
-        try {
-          const data = JSON.parse(text);
-          applyDataToForm(data);
-          alert("Imported successfully.");
-        } catch (e) {
-          alert("Invalid JSON data.");
-        }
-      });
-      document.getElementById("importFile").addEventListener("change", async (e) => {
-        const file = e.target.files?.[0];
-        if (!file) return;
-        const text = await file.text();
-        document.getElementById("importBox").value = text;
-      });
-
-      // Live preview
-      document.addEventListener("input", () => renderSummary());
-
-      // Load initial data if present
-      loadSession(true);
+    function toast(msg, ms=1800) {
+      const t = $("#toast");
+      t.textContent = msg;
+      t.classList.add("show");
+      clearTimeout(t._tid);
+      t._tid = setTimeout(()=> t.classList.remove("show"), ms);
     }
 
-    // New session: reset forms and create a clean skeleton
-    function newSession() {
-      if (!confirm("Start a new session? This will clear current inputs in this tab (not your exports).")) return;
-      localStorage.removeItem(storageKey);
-      // Clear inputs
-      document.querySelectorAll("input, textarea").forEach(el => {
-        if (el.type === "checkbox" || el.type === "radio") el.checked = false;
-        else if (el.tagName === "SELECT") el.selectedIndex = 0;
-        else if (el.value) el.value = "";
+    // Theme
+    function applyTheme(theme){
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+    function initTheme(){
+      const saved = localStorage.getItem(themeKey);
+      if (saved) applyTheme(saved);
+      else {
+        const prefersLight = window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches;
+        applyTheme(prefersLight ? "light" : "dark");
+      }
+    }
+    $("#themeToggle").addEventListener("click", ()=>{
+      const cur = document.documentElement.getAttribute("data-theme");
+      const next = cur === "dark" ? "light" : "dark";
+      applyTheme(next);
+      localStorage.setItem(themeKey, next);
+    });
+
+    // Range + number sync helpers
+    function syncPair(rangeId, numberId){
+      const r = $(rangeId), n = $(numberId);
+      const sync = (src, dst)=>{ dst.value = src.value; markDirty(); renderSummary(); updateScore(); };
+      r.addEventListener("input", ()=> sync(r,n));
+      n.addEventListener("input", ()=> {
+        const v = Math.max(Number(n.min), Math.min(Number(n.max), Number(n.value||0)));
+        n.value = v; r.value = v; markDirty(); renderSummary(); updateScore();
       });
-      // Re-create some defaults
-      document.getElementById("q_energy").value = "6";
-      document.getElementById("q_mood").value = "6";
-      document.getElementById("q_stress").value = "5";
-      document.getElementById("q_sleep").value = "7";
-      document.getElementById("okrObjective").value = "Stabilize daily routine and energy";
-      document.getElementById("okrKR1").value = "Establish morning routine by day 3";
-      document.getElementById("okrKR1Progress").value = 20;
-      document.getElementById("okrKR2").value = "Sleep 7 hours most nights";
-      document.getElementById("okrKR2Progress").value = 30;
-      document.getElementById("okrKR3").value = "Move 20 mins daily";
-      document.getElementById("okrKR3Progress").value = 10;
-      renderSummary();
     }
 
-    // Capture current form into a data object
-    function collectData() {
-      const data = {
-        timestamp: new Date().toISOString(),
-        quickCheck: {
-          energy: Number(document.getElementById("q_energy").value || 0),
-          mood: Number(document.getElementById("q_mood").value || 0),
-          stress: Number(document.getElementById("q_stress").value || 0),
-          friction: document.getElementById("q_friction").value,
-          sleep: Number(document.getElementById("q_sleep").value || 0),
-          boundary: document.getElementById("q_boundary").value
-        },
-        values: [
-          document.getElementById("v1").value,
-          document.getElementById("v2").value,
-          document.getElementById("v3").value
-        ],
-        domains: [
-          { name: document.getElementById("d1").value, outcome: domainOutcomesFromText(0) },
-          { name: document.getElementById("d2").value, outcome: domainOutcomesFromText(1) },
-          { name: document.getElementById("d3").value, outcome: domainOutcomesFromText(2) },
-          { name: document.getElementById("d4").value, outcome: document.getElementById("domainOutcomes").value.split("\n")[3] || "" }
-        ].filter(d => d.name && d.name.trim() !== "" ),
-        framework: document.getElementById("frameworkSelect").value,
-        goals: collectGoals(),
-        plan: {
-          bigRock: document.getElementById("planBigRock").value,
-          bigRockTime: Number(document.getElementById("planBigRockTime").value || 60),
-          supporting: [
-            document.getElementById("planSupport1").value,
-            document.getElementById("planSupport2").value
-          ].filter(s => s && s.trim() !== "")
-        }
-        ,
-        system: {
-          preferred: document.getElementById("systemPref").value,
-          templates: document.getElementById("systemTemplates").value
-        },
-        wellbeing: {
-          breaks: Number(document.getElementById("wbBreaks").value || 2),
-          move: document.getElementById("wbMove").value,
-          sleep: document.getElementById("wbSleep").value,
-          boundary: document.getElementById("wbBoundary").value
-        },
-        cadence: {
-          daily: document.getElementById("cadenceDaily").value,
-          weekly: document.getElementById("cadenceWeekly").value
-        },
-        signals: Array.from(document.getElementById("signalsList").querySelectorAll("input[type=checkbox]")).map(cb => cb.checked),
-        mv: document.getElementById("mvSummary").value,
-        sevenDayPlan: document.getElementById("sevenDayPlan").innerText,
-        startNotes: document.getElementById("startNotes").value
-      };
+    // KR helpers
+    function createKrRow(text="", progress=0){
+      const row = document.createElement("div");
+      row.className = "kr-row";
+      row.innerHTML = `
+        <input type="text" class="kr-text" placeholder="Key Result description" value="${text.replaceAll('"','&quot;')}"/>
+        <div>
+          <div class="progressbar" aria-label="Progress bar"><span style="width:${progress}%"></span></div>
+          <input type="range" class="kr-range" min="0" max="100" value="${progress}" aria-label="Key Result progress slider" />
+        </div>
+        <input type="number" class="kr-num" min="0" max="100" value="${progress}" aria-label="Key Result progress number"/>
+        <button class="iconbtn move-up" title="Move up" aria-label="Move up">▲</button>
+        <button class="iconbtn remove-kr" title="Remove" aria-label="Remove">✕</button>
+      `;
+      const range = $(".kr-range", row);
+      const num = $(".kr-num", row);
+      const bar = $(".progressbar > span", row);
 
-      // Clean some empty arrays
-      data.domains = data.domains.filter(d => d.name && d.name.trim() !== "");
-      // Normalize goals depending on framework
-      if (data.goals && data.goals.length === 0) data.goals = null;
-      return data;
+      const sync = (v)=>{ bar.style.width = v + "%"; num.value = v; range.value = v; markDirty(); renderSummary(); };
+      range.addEventListener("input", () => sync(Number(range.value)));
+      num.addEventListener("input", () => {
+        let v = Number(num.value||0);
+        v = Math.max(0, Math.min(100, v));
+        sync(v);
+      });
+      $(".remove-kr", row).addEventListener("click", () => { row.remove(); markDirty(); renderSummary(); });
+      $(".move-up", row).addEventListener("click", () => {
+        const prev = row.previousElementSibling;
+        if (prev) { krList.insertBefore(row, prev); markDirty(); renderSummary(); }
+      });
+      $(".kr-text", row).addEventListener("input", ()=> { markDirty(); renderSummary(); });
+      return row;
     }
 
-    // Helper: collect goals for OKR or SMART
-    function collectGoals() {
-      const framework = document.getElementById("frameworkSelect").value;
-      if (framework === "OKR") {
-        const obj = document.getElementById("okrObjective").value;
-        const krs = [
-          { text: document.getElementById("okrKR1").value, progress: Number(document.getElementById("okrKR1Progress").value || 0) },
-          { text: document.getElementById("okrKR2").value, progress: Number(document.getElementById("okrKR2Progress").value || 0) },
-          { text: document.getElementById("okrKR3").value, progress: Number(document.getElementById("okrKR3Progress").value || 0) },
-        ].filter(k => k.text && k.text.trim() !== "");
-        return [
-          { objective: obj, keyResults: krs }
-        ];
-      } else {
-        // SMART: read from dynamic blocks
-        const blocks = Array.from(smartGoalsContainer.querySelectorAll(".smart-block"));
-        const goals = blocks.map((b) => {
-          const inputs = b.querySelectorAll("input");
-          // First is title, rest: Specific, Measurable, Achievable, Relevant, Time-bound
-          const title = inputs[0]?.value || "";
-          const specifics = Array.from(inputs).slice(1).map(i => i.value);
-          return {
-            title,
-            specifics
-          };
-        }).filter(g => g.title && g.title.trim() !== "");
-        return goals.length ? goals : null;
+    function ensureInitialKRs(){
+      if (!krList.children.length){
+        krList.appendChild(createKrRow("Establish morning routine by day 3", 20));
+        krList.appendChild(createKrRow("Sleep 7 hours most nights", 30));
+        krList.appendChild(createKrRow("Move 20 mins daily", 10));
       }
     }
 
+    // SMART helpers
+    function createSmartBlock(goal={}){
+      const block = document.createElement("div");
+      block.className = "smart-block";
+      block.style.cssText = "border:1px solid var(--border); padding:8px; border-radius:8px; margin-bottom:8px; background:var(--surface)";
+      block.innerHTML = `
+        <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:6px">
+          <input placeholder="Goal title" class="sg-title" style="flex:1 1 auto" value="${(goal.title||"").replaceAll('"','&quot;')}" />
+          <button class="btn small ghost remove-sg" style="margin-left:8px">Remove</button>
+        </div>
+        <div class="row" style="gap:6px; flex-wrap:wrap">
+          <input placeholder="Specific" class="sg s" style="flex:1 1 180px" value="${(goal.specifics?.[0]||"").replaceAll('"','&quot;')}" />
+          <input placeholder="Measurable" class="sg m" style="flex:1 1 180px" value="${(goal.specifics?.[1]||"").replaceAll('"','&quot;')}" />
+          <input placeholder="Achievable" class="sg a" style="flex:1 1 180px" value="${(goal.specifics?.[2]||"").replaceAll('"','&quot;')}" />
+          <input placeholder="Relevant" class="sg r" style="flex:1 1 180px" value="${(goal.specifics?.[3]||"").replaceAll('"','&quot;')}" />
+          <input placeholder="Time-bound" class="sg t" style="flex:1 1 180px" value="${(goal.specifics?.[4]||"").replaceAll('"','&quot;')}" />
+        </div>
+      `;
+      block.addEventListener("input", ()=> { markDirty(); renderSummary(); });
+      $(".remove-sg", block).addEventListener("click", ()=> { block.remove(); markDirty(); renderSummary(); });
+      return block;
+    }
+
+    // Collapse toggle
+    function initCollapsers(){
+      $$(".toggle-collapse").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const h2 = btn.closest("h2");
+          const card = btn.closest(".card");
+          card.classList.toggle("collapsed");
+          btn.textContent = card.classList.contains("collapsed") ? "Expand" : "Collapse";
+        });
+      });
+      $("#collapseAllBtn").addEventListener("click", ()=> {
+        $$(".card").forEach(c=>c.classList.add("collapsed"));
+        $$(".toggle-collapse").forEach(b=>b.textContent="Expand");
+      });
+      $("#expandAllBtn").addEventListener("click", ()=> {
+        $$(".card").forEach(c=>c.classList.remove("collapsed"));
+        $$(".toggle-collapse").forEach(b=>b.textContent="Collapse");
+      });
+    }
+
+    // Focus mode
+    $("#focusModeBtn").addEventListener("click", ()=>{
+      const minimalIds = ["selfcheck-title","planning-title","wellbeing-title","preview-title"];
+      const all = $$(".card");
+      const inFocus = $("#focusModeBtn").dataset.on === "1";
+      if (!inFocus){
+        all.forEach(card=>{
+          const id = $("h2", card)?.id;
+          if (!minimalIds.includes(id)) card.classList.add("collapsed");
+        });
+        $("#focusModeBtn").dataset.on = "1";
+        $("#focusModeBtn").textContent = "Unfocus";
+      } else {
+        all.forEach(card=>card.classList.remove("collapsed"));
+        $("#focusModeBtn").dataset.on = "0";
+        $("#focusModeBtn").textContent = "Focus";
+      }
+    });
+
+    // Save status
+    function setSaving(){ saveStatus.textContent = "Saving…"; saveStatus.classList.remove("saved"); saveStatus.classList.add("saving"); }
+    function setSaved(){ saveStatus.textContent = "Saved"; saveStatus.classList.remove("saving"); saveStatus.classList.add("saved"); }
+
+    function markDirty(){
+      dirtySinceSave = true;
+      scheduleAutosave();
+      updateScore();
+    }
+    function scheduleAutosave(){
+      setSaving();
+      clearTimeout(autosaveTimer);
+      autosaveTimer = setTimeout(()=> { saveSession(true); }, 800);
+    }
+
+    // Data collection
     function domainOutcomesFromText(index) {
-      // Simple extraction: take a line from domainOutcomes
-      const text = document.getElementById("domainOutcomes").value;
+      const text = $("#domainOutcomes").value || "";
       const lines = text.split("\n").map(l => l.trim()).filter(l => l.length > 0);
       return lines[index] || "";
     }
 
-    // Apply data to form (for loading)
-    function applyDataToForm(data) {
-      if (!data) return;
-      // Quick check
-      if (data.quickCheck) {
-        document.getElementById("q_energy").value = data.quickCheck.energy ?? 6;
-        document.getElementById("q_mood").value = data.quickCheck.mood ?? 6;
-        document.getElementById("q_stress").value = data.quickCheck.stress ?? 5;
-        document.getElementById("q_friction").value = data.quickCheck.friction ?? "";
-        document.getElementById("q_sleep").value = data.quickCheck.sleep ?? 7;
-        document.getElementById("q_boundary").value = data.quickCheck.boundary ?? "";
+    function collectGoals(){
+      const framework = $("#frameworkSelect").value;
+      if (framework === "OKR"){
+        const krs = $$(".kr-row").map(row=>({
+          text: $(".kr-text", row).value || "",
+          progress: Number($(".kr-num", row).value || $(".kr-range", row).value || 0)
+        })).filter(k=>k.text.trim()!=="");
+        return [{ objective: $("#okrObjective").value || "", keyResults: krs }];
+      } else {
+        const blocks = $$(".smart-block");
+        const goals = blocks.map(b=>{
+          const title = $(".sg-title", b)?.value || "";
+          const specifics = [".s",".m",".a",".r",".t"].map(cls=>$(cls, b)?.value || "");
+          return { title, specifics };
+        }).filter(g=>g.title.trim()!=="");
+        return goals.length ? goals : null;
       }
-      // Values
-      if (data.values && data.values.length >= 3) {
-        document.getElementById("v1").value = data.values[0];
-        document.getElementById("v2").value = data.values[1];
-        document.getElementById("v3").value = data.values[2];
-      }
-      // Domains
-      if (data.domains && data.domains.length) {
-        // Map by index
-        const map = data.domains;
-        if (map[0]) document.getElementById("d1").value = map[0].name || "";
-        if (map[1]) document.getElementById("d2").value = map[1].name || "";
-        if (map[2]) document.getElementById("d3").value = map[2].name || "";
-        // Outcomes lines
-        const lines = (map.map(m => m.outcome || ""));
-        if (lines[0]) document.getElementById("domainOutcomes").value = [lines[0], lines[1] || "", lines[2] || ""].join("\n");
-      }
-      // Framework
-      if (data.framework) {
-        document.getElementById("frameworkSelect").value = data.framework;
-      }
-      // OKR
-      if (data.goals && data.goals.length) {
-        const g = data.goals[0];
-        if (data.framework === "OKR") {
-          document.getElementById("okrObjective").value = g.objective ?? "";
-          if (g.keyResults) {
-            document.getElementById("okrKR1").value = g.keyResults[0]?.text ?? "";
-            document.getElementById("okrKR1Progress").value = g.keyResults[0]?.progress ?? 0;
-            document.getElementById("okrKR2").value = g.keyResults[1]?.text ?? "";
-            document.getElementById("okrKR2Progress").value = g.keyResults[1]?.progress ?? 0;
-            document.getElementById("okrKR3").value = g.keyResults[2]?.text ?? "";
-            document.getElementById("okrKR3Progress").value = g.keyResults[2]?.progress ?? 0;
-          }
-        } else {
-          // SMART: load simple titles if present
-          if (g.title) {
-            // Create a single SMART block with title
-            const block = document.querySelector(".smart-block");
-            if (block) {
-              block.querySelector("input").value = g.title;
-              const inners = block.querySelectorAll("input");
-              g.specifics?.forEach((s, i) => {
-                if (inners[i+1]) inners[i+1].value = s;
-              });
-            }
-          }
-        }
-      }
-      // Plan
-      if (data.plan) {
-        document.getElementById("planBigRock").value = data.plan.bigRock ?? "";
-        document.getElementById("planBigRockTime").value = data.plan.bigRockTime ?? 60;
-        if (data.plan.supporting && data.plan.supporting.length) {
-          document.getElementById("planSupport1").value = data.plan.supporting[0] ?? "";
-          document.getElementById("planSupport2").value = data.plan.supporting[1] ?? "";
-        }
-      }
-      // System
-      if (data.system) {
-        if (data.system.preferred) document.getElementById("systemPref").value = data.system.preferred;
-        if (data.system.templates) document.getElementById("systemTemplates").value = data.system.templates;
-      }
-      // Wellbeing
-      if (data.wellbeing) {
-        document.getElementById("wbBreaks").value = data.wellbeing.breaks ?? 2;
-        document.getElementById("wbMove").value = data.wellbeing.move ?? "short";
-        document.getElementById("wbSleep").value = data.wellbeing.sleep ?? "";
-        document.getElementById("wbBoundary").value = data.wellbeing.boundary ?? "";
-      }
-      // Cadence
-      if (data.cadence) {
-        document.getElementById("cadenceDaily").value = data.cadence.daily ?? "";
-        document.getElementById("cadenceWeekly").value = data.cadence.weekly ?? "";
-      }
-      // Signals
-      if (Array.isArray(data.signals) && data.signals.length) {
-        const cbs = document.querySelectorAll("#signalsList input[type=checkbox]");
-        cbs.forEach((cb, i) => { cb.checked = !!data.signals[i]; });
-      }
-      // MV / Start notes
-      if (data.mv) document.getElementById("mvSummary").value = data.mv;
-      if (data.startNotes) document.getElementById("startNotes").value = data.startNotes;
-      renderSummary();
     }
 
-    // Render a human-friendly live summary
-    function renderSummary() {
+    function collectData(){
+      const data = {
+        version,
+        timestamp: new Date().toISOString(),
+        quickCheck: {
+          energy: Number($("#q_energy").value || 0),
+          mood: Number($("#q_mood").value || 0),
+          stress: Number($("#q_stress").value || 0),
+          friction: $("#q_friction").value || "",
+          sleep: Number($("#q_sleep").value || 0),
+          boundary: $("#q_boundary").value || ""
+        },
+        values: [$("#v1").value, $("#v2").value, $("#v3").value],
+        domains: [
+          { name: $("#d1").value, outcome: domainOutcomesFromText(0) },
+          { name: $("#d2").value, outcome: domainOutcomesFromText(1) },
+          { name: $("#d3").value, outcome: domainOutcomesFromText(2) },
+          { name: $("#d4").value, outcome: ($("#domainOutcomes").value.split("\n")[3]||"").trim() }
+        ].filter(d=> (d.name||"").trim()!=="" ),
+        framework: $("#frameworkSelect").value,
+        goals: collectGoals(),
+        plan: {
+          bigRock: $("#planBigRock").value || "",
+          bigRockTime: Number($("#planBigRockTime").value || 60),
+          supporting: [$("#planSupport1").value, $("#planSupport2").value].filter(s=> (s||"").trim()!=="")
+        },
+        system: {
+          preferred: $("#systemPref").value,
+          templates: $("#systemTemplates").value || ""
+        },
+        wellbeing: {
+          breaks: Number($("#wbBreaks").value || 2),
+          move: $("#wbMove").value,
+          sleep: $("#wbSleep").value || "",
+          boundary: $("#wbBoundary").value || ""
+        },
+        cadence: {
+          daily: $("#cadenceDaily").value || "",
+          weekly: $("#cadenceWeekly").value || ""
+        },
+        signals: $$("#signalsList input[type=checkbox]").map(cb => cb.checked),
+        mv: $("#mvSummary").value || "",
+        sevenDayPlan: $("#sevenDayPlan").innerText,
+        startNotes: $("#startNotes").value || "",
+        ui: {
+          theme: document.documentElement.getAttribute("data-theme") || "dark"
+        }
+      };
+      if (data.goals && data.goals.length === 0) data.goals = null;
+      return data;
+    }
+
+    // Apply data to form
+    function applyDataToForm(data){
+      if (!data) return;
+      const q = data.quickCheck || {};
+      $("#q_energy").value = q.energy ?? 6; $("#q_energy_range").value = q.energy ?? 6;
+      $("#q_mood").value = q.mood ?? 6; $("#q_mood_range").value = q.mood ?? 6;
+      $("#q_stress").value = q.stress ?? 5; $("#q_stress_range").value = q.stress ?? 5;
+      $("#q_friction").value = q.friction ?? "";
+      $("#q_sleep").value = q.sleep ?? 7; $("#q_sleep_range").value = q.sleep ?? 7;
+      $("#q_boundary").value = q.boundary ?? "";
+
+      if (Array.isArray(data.values)){
+        $("#v1").value = data.values[0] ?? "";
+        $("#v2").value = data.values[1] ?? "";
+        $("#v3").value = data.values[2] ?? "";
+      }
+
+      if (Array.isArray(data.domains) && data.domains.length){
+        $("#d1").value = data.domains[0]?.name ?? "";
+        $("#d2").value = data.domains[1]?.name ?? "";
+        $("#d3").value = data.domains[2]?.name ?? "";
+        $("#d4").value = data.domains[3]?.name ?? "";
+        const lines = data.domains.map(d=> d?.outcome || "");
+        if (lines.length){
+          $("#domainOutcomes").value = [lines[0]||"", lines[1]||"", lines[2]||"", lines[3]||""].join("\n").trim();
+        }
+      }
+
+      if (data.framework) $("#frameworkSelect").value = data.framework;
+
+      // Switch panels
+      toggleFrameworkPanels();
+
+      if (data.goals && data.framework === "OKR"){
+        $("#okrObjective").value = data.goals[0]?.objective ?? "";
+        krList.innerHTML = "";
+        const krs = data.goals[0]?.keyResults || [];
+        if (krs.length){
+          krs.forEach(kr=> krList.appendChild(createKrRow(kr.text||"", Number(kr.progress||0))));
+        } else {
+          ensureInitialKRs();
+        }
+      } else if (data.goals && data.framework === "SMART"){
+        smartGoalsContainer.innerHTML = "";
+        data.goals.forEach(g => smartGoalsContainer.appendChild(createSmartBlock(g)));
+        if (!smartGoalsContainer.children.length) smartGoalsContainer.appendChild(createSmartBlock({}));
+      } else {
+        // default SMART block exists if SMART chosen
+        if ($("#frameworkSelect").value === "SMART" && !smartGoalsContainer.children.length) {
+          smartGoalsContainer.appendChild(createSmartBlock({}));
+        }
+        if ($("#frameworkSelect").value === "OKR" && !krList.children.length) ensureInitialKRs();
+      }
+
+      if (data.plan){
+        $("#planBigRock").value = data.plan.bigRock ?? "";
+        $("#planBigRockTime").value = data.plan.bigRockTime ?? 60;
+        $("#planSupport1").value = data.plan.supporting?.[0] ?? "";
+        $("#planSupport2").value = data.plan.supporting?.[1] ?? "";
+      }
+
+      if (data.system){
+        $("#systemPref").value = data.system.preferred ?? "digital";
+        $("#systemTemplates").value = data.system.templates ?? "";
+      }
+
+      if (data.wellbeing){
+        $("#wbBreaks").value = data.wellbeing.breaks ?? 2;
+        $("#wbMove").value = data.wellbeing.move ?? "short";
+        $("#wbSleep").value = data.wellbeing.sleep ?? "";
+        $("#wbBoundary").value = data.wellbeing.boundary ?? "";
+      }
+
+      if (data.cadence){
+        $("#cadenceDaily").value = data.cadence.daily ?? "";
+        $("#cadenceWeekly").value = data.cadence.weekly ?? "";
+      }
+
+      if (Array.isArray(data.signals)){
+        const cbs = $$("#signalsList input[type=checkbox]");
+        cbs.forEach((cb,i)=> cb.checked = !!data.signals[i]);
+      }
+
+      if (data.mv) $("#mvSummary").value = data.mv;
+      if (data.startNotes) $("#startNotes").value = data.startNotes;
+
+      renderSummary();
+      updateScore();
+    }
+
+    function renderSummary(){
       const data = collectData();
-      // Compose a readable summary
       let summary = [];
       summary.push("Stop Button Protocol — Live Summary");
+      summary.push("Version: " + (data.version || "1.x"));
       summary.push("Timestamp: " + (data.timestamp || new Date().toISOString()));
-      const qc = data.quickCheck;
-      summary.push("Self-check: Energy " + qc.energy + ", Mood " + qc.mood + ", Stress " + qc.stress);
-      summary.push("Friction: " + (qc.friction || "n/a"));
-      summary.push("Sleep quality: " + qc.sleep);
-      summary.push("Boundary: " + (qc.boundary || ""));
+      const qc = data.quickCheck || {};
+      summary.push("");
+      summary.push("Self-check:");
+      summary.push("  • Energy " + qc.energy + " | Mood " + qc.mood + " | Stress " + qc.stress);
+      summary.push("  • Friction: " + (qc.friction || "n/a"));
+      summary.push("  • Sleep quality: " + qc.sleep);
+      summary.push("  • Boundary: " + (qc.boundary || "—"));
 
-      // Values and domains
-      summary.push("Values: " + data.values.filter(Boolean).join(" | "));
-      const doms = (data.domains || []).map(d => d.name + " → " + (d.outcome || "")).join("; ");
+      summary.push("");
+      summary.push("Values: " + (data.values||[]).filter(Boolean).join(" | "));
+      const doms = (data.domains || []).map(d => (d.name||"") + (d.outcome? " → " + d.outcome : "")).join("; ");
       summary.push("Domains & outcomes: " + doms);
 
-      // Goals
+      summary.push("");
       summary.push("Framework: " + (data.framework || ""));
       if (data.framework === "OKR" && data.goals && data.goals.length) {
         const okr = data.goals[0];
-        summary.push("OKR Objective: " + (okr.objective || ""));
+        summary.push("Objective: " + (okr.objective || ""));
         if (okr.keyResults) {
           okr.keyResults.forEach((kr, idx) => {
-            summary.push("KR" + (idx+1) + ": " + (kr.text || "") + " [" + (kr.progress ?? 0) + "%]");
+            summary.push("  KR" + (idx+1) + ": " + (kr.text || "") + " [" + (kr.progress ?? 0) + "%]");
           });
         }
-      } else if (data.goals && data.goals.length) {
-        summary.push("SMART goals: " + data.goals.map(g => g.title || "").join(" | "));
+      } else if (data.framework === "SMART" && data.goals) {
+        data.goals.forEach((g,i)=>{
+          summary.push("SMART " + (i+1) + ": " + (g.title||""));
+          const labels = ["S","M","A","R","T"];
+          (g.specifics||[]).forEach((s, j)=> { if ((s||"").trim()) summary.push("  " + labels[j] + ": " + s); });
+        });
       }
 
-      // Plan
-      summary.push("Big Rock: " + (data.plan?.bigRock || ""));
-      summary.push("Big Rock time: " + (data.plan?.bigRockTime ?? ""));
-      if (data.plan?.supporting?.length) {
-        summary.push("Supporting: " + data.plan.supporting.join(" / "));
-      }
+      summary.push("");
+      summary.push("Plan:");
+      summary.push("  • Big Rock: " + (data.plan?.bigRock || "—") + " (" + (data.plan?.bigRockTime ?? "—") + "m)");
+      if (data.plan?.supporting?.length) summary.push("  • Supporting: " + data.plan.supporting.join(" / "));
 
-      // System
-      summary.push("System: " + (data.system?.preferred || ""));
-      // Wellbeing
+      summary.push("");
+      summary.push("System: " + (data.system?.preferred || "—"));
       summary.push("Wellbeing: Breaks=" + (data.wellbeing?.breaks ?? "") + "m, Move=" + (data.wellbeing?.move ?? "") + ", Sleep='" + (data.wellbeing?.sleep ?? "") + "'");
-      summary.push("Boundary: " + (data.wellbeing?.boundary ?? ""));
+      summary.push("Boundary: " + (data.wellbeing?.boundary ?? "—"));
 
-      // Cadence
-      summary.push("Cadence: Daily prompts = [" + (data.cadence?.daily ?? "") + "], Weekly prompts = [" + (data.cadence?.weekly ?? "") + "]");
-      // Signals
+      summary.push("");
+      summary.push("Cadence:");
+      summary.push("  • Daily: " + (data.cadence?.daily || "—").replace(/\n/g," "));
+      summary.push("  • Weekly: " + (data.cadence?.weekly || "—").replace(/\n/g," "));
+
       const sigs = data.signals || [];
+      summary.push("");
       summary.push("Signals completed: " + (sigs.filter(Boolean).length) + " / " + sigs.length);
 
-      // MV
-      if (data.mv) summary.push("One-page snapshot: " + data.mv);
+      if (data.mv){
+        summary.push("");
+        summary.push("One-page snapshot: " + data.mv);
+      }
 
-      // Output
-      document.getElementById("livePreview").textContent = summary.join("\n");
+      $("#livePreview").textContent = summary.join("\n");
     }
 
-    // Save to localStorage
-    function saveSession() {
+    // Save / Load
+    function saveSession(silent=false){
       const data = collectData();
-      localStorage.setItem(storageKey, JSON.stringify(data));
-      // Also show in export box for convenience
-      document.getElementById("exportBox").value = JSON.stringify(data, null, 2);
-      alert("Session saved locally.");
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(data));
+        setSaved();
+        dirtySinceSave = false;
+
+        // History
+        const hist = JSON.parse(localStorage.getItem(historyKey) || "[]");
+        hist.unshift({
+          savedAt: data.timestamp,
+          title: data.plan?.bigRock || data.goals?.[0]?.objective || "Session",
+          data
+        });
+        if (hist.length > 10) hist.length = 10;
+        localStorage.setItem(historyKey, JSON.stringify(hist));
+        renderHistory();
+        if (!silent) {
+          $("#exportBox").value = JSON.stringify(data, null, 2);
+          toast("Session saved locally");
+        }
+      } catch (e){
+        console.error(e);
+        if (!silent) toast("Failed to save");
+      }
     }
 
-    // Load from localStorage
-    function loadSession(silent = false) {
+    function loadSession(silent=false){
       const raw = localStorage.getItem(storageKey);
       if (!raw) {
-        if (!silent) alert("No saved session found. Start by saving a new session.");
+        if (!silent) toast("No saved session found");
         renderSummary();
         return;
       }
       try {
         const data = JSON.parse(raw);
         applyDataToForm(data);
-        if (!silent) alert("Session loaded.");
-      } catch (e) {
+        setSaved();
+        if (!silent) toast("Session loaded");
+      } catch(e){
         console.error(e);
-        if (!silent) alert("Failed to load session.");
+        if (!silent) toast("Failed to load session");
       }
     }
 
-    // Export as JSON
-    function exportSession() {
+    function newSession(){
+      if (!confirm("Start a new session? This will clear current inputs in this tab (not your exports).")) return;
+      localStorage.removeItem(storageKey);
+      // Reset inputs
+      $$("input, textarea, select").forEach(el=>{
+        if (el.type === "checkbox" || el.type === "radio") el.checked = false;
+        else if (el.tagName === "SELECT") el.selectedIndex = 0;
+        else el.value = "";
+      });
+
+      // Defaults
+      $("#q_energy").value = "6"; $("#q_energy_range").value = "6";
+      $("#q_mood").value = "6"; $("#q_mood_range").value = "6";
+      $("#q_stress").value = "5"; $("#q_stress_range").value = "5";
+      $("#q_sleep").value = "7"; $("#q_sleep_range").value = "7";
+      $("#q_friction").value = "Backlog and decision fatigue";
+      $("#q_boundary").value = "No work emails after 9pm";
+      $("#v1").value = "Autonomy"; $("#v2").value = "Wellbeing"; $("#v3").value = "Growth";
+      $("#d1").value = "Wellbeing"; $("#d2").value = "Career/learning"; $("#d3").value = "Relationships"; $("#d4").value = "";
+      $("#domainOutcomes").value = "Wellbeing: better sleep, energy, lower stress.\nCareer: clear learning path, defined next role.\nRelationships: stronger connection with close ones.";
+      $("#frameworkSelect").value = "OKR";
+      toggleFrameworkPanels();
+      $("#okrObjective").value = "Stabilize daily routine and energy";
+      krList.innerHTML = "";
+      ensureInitialKRs();
+      $("#planBigRock").value = "Establish daily routine and energy baseline";
+      $("#planBigRockTime").value = 90;
+      $("#planSupport1").value = "Sleep window 7–8 hours";
+      $("#planSupport2").value = "5‑min morning movement";
+      $("#wbBreaks").value = 2; $("#wbMove").value = "short";
+      $("#wbSleep").value = "Dim lights, no screens 30m before bed";
+      $("#wbBoundary").value = "No work after 9pm";
+      $("#cadenceDaily").value = "What went well today? What needs attention? Next small step?";
+      $("#cadenceWeekly").value = "Rethink goals, adjust priorities, plan next week, review wellbeing metrics";
+      $$("#signalsList input[type=checkbox]").forEach(cb=> cb.checked = false);
+      $("#mvSummary").value = "";
+      $("#startNotes").value = "";
+      $$(".dchk").forEach(c=> c.checked = false);
+
+      renderSummary();
+      updateScore();
+      setSaved();
+      toast("New session ready");
+    }
+
+    // Export / Import
+    function exportSession(){
       const data = collectData();
       const text = JSON.stringify(data, null, 2);
-      document.getElementById("exportBox").value = text;
-      // Also copy to clipboard for convenience
-      try {
-        navigator.clipboard.writeText(text);
-        alert("Exported JSON copied to clipboard.");
-      } catch {
-        // ignore
-      }
+      $("#exportBox").value = text;
+      try { navigator.clipboard.writeText(text); toast("Export copied to clipboard"); } catch {}
     }
 
-    // Initialize
+    function downloadJSON(){
+      const text = $("#exportBox").value.trim() || JSON.stringify(collectData(), null, 2);
+      const blob = new Blob([text], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `stop-button-protocol-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(()=> URL.revokeObjectURL(a.href), 500);
+    }
+
+    $("#exportBtn").addEventListener("click", exportSession);
+    $("#downloadBtn").addEventListener("click", downloadJSON);
+
+    $("#importBtn").addEventListener("click", () => {
+      const text = $("#importBox").value.trim();
+      if (!text) { alert("Please paste JSON to import."); return; }
+      try {
+        const data = JSON.parse(text);
+        applyDataToForm(data);
+        saveSession(true);
+        toast("Imported successfully");
+      } catch (e) {
+        alert("Invalid JSON data.");
+      }
+    });
+    $("#importFile").addEventListener("change", async (e) => {
+      const file = e.target.files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      $("#importBox").value = text;
+      toast("File loaded into textbox — click Import");
+    });
+
+    // Share link via URL hash
+    function toBase64(str){
+      const bytes = new TextEncoder().encode(str);
+      let bin = ""; bytes.forEach(b=> bin += String.fromCharCode(b));
+      return btoa(bin);
+    }
+    function fromBase64(b64){
+      const bin = atob(b64);
+      const bytes = new Uint8Array(bin.length);
+      for (let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+      return new TextDecoder().decode(bytes);
+    }
+    function shareLink(){
+      const data = collectData();
+      const compact = JSON.stringify(data);
+      const b64 = toBase64(compact).replace(/=+$/,"");
+      const url = `${location.origin}${location.pathname}#data=${b64}`;
+      navigator.clipboard.writeText(url).then(()=> toast("Shareable link copied")).catch(()=>{});
+    }
+    function loadFromHash(){
+      const h = location.hash;
+      if (!h.startsWith("#data=")) return false;
+      const b64 = h.slice(6);
+      try {
+        const text = fromBase64(b64);
+        const data = JSON.parse(text);
+        applyDataToForm(data);
+        toast("Loaded from URL");
+        return true;
+      } catch(e){
+        console.warn("Failed to parse URL data", e);
+        return false;
+      }
+    }
+    $("#shareLinkBtn").addEventListener("click", shareLink);
+    $("#loadFromUrlBtn").addEventListener("click", loadFromHash);
+
+    // History UI
+    function renderHistory(){
+      const target = $("#historyList");
+      const hist = JSON.parse(localStorage.getItem(historyKey) || "[]");
+      if (!hist.length) { target.textContent = "No history yet."; return; }
+      const frag = document.createDocumentFragment();
+      hist.forEach((h, idx)=>{
+        const row = document.createElement("div");
+        row.className = "row";
+        row.style.cssText = "align-items:center; gap:6px; margin-bottom:6px";
+        const title = document.createElement("div");
+        title.textContent = `${new Date(h.savedAt).toLocaleString()} — ${h.title || "Session"}`;
+        title.className = "hint";
+        const loadBtn = document.createElement("button");
+        loadBtn.className = "btn small";
+        loadBtn.textContent = "Load";
+        loadBtn.addEventListener("click", ()=> { applyDataToForm(h.data); toast("Loaded from history"); });
+
+        const copyBtn = document.createElement("button");
+        copyBtn.className = "btn small ghost";
+        copyBtn.textContent = "Copy JSON";
+        copyBtn.addEventListener("click", ()=> navigator.clipboard.writeText(JSON.stringify(h.data, null, 2)).then(()=> toast("Copied")));
+
+        const delBtn = document.createElement("button");
+        delBtn.className = "btn small danger";
+        delBtn.textContent = "Delete";
+        delBtn.addEventListener("click", ()=>{
+          const hh = JSON.parse(localStorage.getItem(historyKey) || "[]");
+          hh.splice(idx,1);
+          localStorage.setItem(historyKey, JSON.stringify(hh));
+          renderHistory();
+        });
+        row.appendChild(title); row.appendChild(loadBtn); row.appendChild(copyBtn); row.appendChild(delBtn);
+        frag.appendChild(row);
+      });
+      target.innerHTML = "";
+      target.appendChild(frag);
+    }
+
+    // Templates quick fill
+    $$("[data-template]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const t = btn.getAttribute("data-template");
+        let text = "";
+        if (t === "notion"){
+          text = `One page:
+- Goals (OKR/SMART)
+- Tasks: Inbox, Next, Waiting, Done
+- Wellbeing: Sleep, Movement, Breaks
+- Weekly Review: Wins, Adjustments, Next Week
+Views:
+- Today, This Week, Backlog, Someday`;
+        } else if (t === "todoist"){
+          text = `Projects:
+- Objectives
+- Big Rocks
+- Daily Wellbeing
+- Weekly Review
+Filters:
+- Today @priority 1
+- Next (7 days)`;
+        } else if (t === "analog"){
+          text = `Spread (one page):
+- Top 3 Outcomes
+- Tasks (Next)
+- Wellbeing (Sleep, Move, Boundary)
+- Daily Snapshot
+- Notes / Reflection`;
+        }
+        $("#systemTemplates").value = text;
+        markDirty();
+      });
+    });
+
+    // Generate snapshot
+    $("#genSnapshotBtn").addEventListener("click", ()=>{
+      const d = collectData();
+      const okr = (d.framework === "OKR" && d.goals?.[0]) ? d.goals[0] : null;
+      const firstSmart = (d.framework === "SMART" && d.goals?.[0]) ? d.goals[0] : null;
+      const top = okr?.objective || firstSmart?.title || d.plan?.bigRock || "Set today’s focus";
+      const wb = `WB: ${d.wellbeing?.sleep || "sleep"}, ${d.wellbeing?.move || "move"}, boundary: ${d.wellbeing?.boundary || d.quickCheck?.boundary || "—"}`;
+      const next = (d.plan?.supporting?.[0] || "Next small step?");
+      $("#mvSummary").value = `Focus: ${top}\nStep: ${next}\n${wb}\nNote: ${d.quickCheck?.friction ? "Watch friction: " + d.quickCheck.friction : ""}`.trim();
+      markDirty();
+    });
+
+    // Summary copy
+    $("#copySummaryBtn").addEventListener("click", ()=>{
+      const txt = $("#livePreview").textContent;
+      navigator.clipboard.writeText(txt).then(()=> toast("Summary copied"));
+    });
+
+    // Print
+    $("#printBtn").addEventListener("click", ()=> window.print());
+
+    // Framework toggle
+    function toggleFrameworkPanels(){
+      const v = frameworkSelect.value;
+      if (v === "OKR") { okrPanel.style.display = "block"; smartPanel.style.display = "none"; ensureInitialKRs(); }
+      else { okrPanel.style.display = "none"; smartPanel.style.display = "block"; if (!smartGoalsContainer.children.length) smartGoalsContainer.appendChild(createSmartBlock({})); }
+      renderSummary();
+    }
+    frameworkSelect.addEventListener("change", ()=> { toggleFrameworkPanels(); markDirty(); });
+
+    // Add KR
+    addKrBtn.addEventListener("click", ()=> { krList.appendChild(createKrRow("", 0)); markDirty(); });
+
+    // Add SMART goal
+    addSmartGoalBtn.addEventListener("click", ()=> { smartGoalsContainer.appendChild(createSmartBlock({})); markDirty(); });
+
+    // Live preview render on input
+    document.addEventListener("input", (e)=> {
+      if ((e.target.matches("input, textarea, select"))) {
+        markDirty();
+      }
+    });
+
+    // Keyboard shortcuts
+    document.addEventListener("keydown", (e)=>{
+      const mod = e.ctrlKey || e.metaKey;
+      if (mod && e.key.toLowerCase() === "s"){ e.preventDefault(); saveSession(); }
+      else if (!mod && e.key.toLowerCase() === "n"){ newSession(); }
+      else if (!mod && e.key.toLowerCase() === "e"){ exportSession(); }
+      else if (!mod && e.key.toLowerCase() === "p"){ e.preventDefault(); window.print(); }
+      else if (e.key === "/"){ e.preventDefault(); const first = $("input, textarea"); first?.focus(); }
+    });
+
+    // Before unload protection
+    window.addEventListener("beforeunload", (e)=>{
+      if (dirtySinceSave){
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
+    // Score
+    function updateScore(){
+      const e = Number($("#q_energy").value||0);
+      const m = Number($("#q_mood").value||0);
+      const s = Number($("#q_stress").value||0);
+      if (e>0 && m>0 && s>0){
+        const invS = 11 - s;
+        const sc = Math.round((e + m + invS)/3);
+        scoreChip.textContent = String(sc);
+      } else scoreChip.textContent = "–";
+    }
+
+    // Buttons
+    $("#saveBtn").addEventListener("click", ()=> saveSession());
+    $("#loadBtn").addEventListener("click", ()=> loadSession());
+    $("#newSessionBtn").addEventListener("click", newSession);
+
+    // Clear local storage
+    $("#clearStorageBtn").addEventListener("click", ()=>{
+      if (!confirm("Clear local data for this app?")) return;
+      localStorage.removeItem(storageKey);
+      localStorage.removeItem(historyKey);
+      renderHistory();
+      toast("Local data cleared");
+    });
+
+    // Sync pairs
+    syncPair("#q_energy_range", "#q_energy");
+    syncPair("#q_mood_range", "#q_mood");
+    syncPair("#q_stress_range", "#q_stress");
+    syncPair("#q_sleep_range", "#q_sleep");
+
+    // Initialization
+    function init(){
+      initTheme();
+      initCollapsers();
+      // Initial SMART block
+      if (!smartGoalsContainer.children.length) smartGoalsContainer.appendChild(createSmartBlock({}));
+
+      // Load from local or URL
+      const loadedFromUrl = loadFromHash();
+      if (!loadedFromUrl) loadSession(true);
+      renderHistory();
+      renderSummary();
+      updateScore();
+      setSaved();
+    }
+
     window.addEventListener("load", init);
   </script>
 </body>
 </html>
-
